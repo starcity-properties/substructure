@@ -1,19 +1,19 @@
-output "url" {
-  value = "http://${aws_elb.webserver_example.dns_name}:${var.elb_port}"
-}
-
-output "elb_dns_name" {
-  value = "${aws_elb.webserver_example.dns_name}"
+output "public_ip" {
+  value = "${aws_elb.web_service.dns_name}"
 }
 
 output "asg_name" {
-  value = "${aws_autoscaling_group.webserver_example.name}"
+  value = "${aws_autoscaling_group.web_service.name}"
 }
 
-output "asg_security_group_id" {
-  value = "${aws_security_group.asg.id}"
+output "elb_dns_name" {
+  value = "${aws_elb.web_service.dns_name}"
 }
 
 output "elb_security_group_id" {
   value = "${aws_security_group.elb.id}"
+}
+
+output "codedeploy_app_name" {
+  value = "${aws_codedeploy_app.codedeploy_app.name}"
 }

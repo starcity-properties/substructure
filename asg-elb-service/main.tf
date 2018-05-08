@@ -1,167 +1,314 @@
-# ---------------------------------------------------------------------------------------------------------------------
-# A SIMPLE EXAMPLE OF HOW DEPLOY AN ASG WITH AN ELB IN FRONT OF IT
-# This is an example of how to use Terraform to deploy an Auto Scaling Group (ASG) with an Elastic Load
-# Balancer (ELB) in front of it. To keep the example simple, we deploy a vanilla Ubuntu AMI across the ASG and run a
-# dirt simple "web server" on top of it as a User Data script. The "web server" always returns "Hello, World".
-#
-# Note: This code is meant solely as a simple demonstration of how to lay out your files and folders with Terragrunt
-# in a way that keeps your Terraform code DRY. This is not production-ready code, so use at your own risk.
-# ---------------------------------------------------------------------------------------------------------------------
+# setup
+
+terraform {
+  backend "s3" {}
+}
 
 provider "aws" {
   region = "${var.aws_region}"
 }
 
-terraform {
-  # The configuration for this backend will be filled in by Terragrunt
-  backend "s3" {}
+# launch configuration
+
+resource "aws_launch_configuration" "web_service" {
+  image_id             = "${var.ami}"
+  instance_type        = "${var.instance_type}"
+  security_groups      = ["${aws_security_group.instance.id}"]
+  iam_instance_profile = "${aws_iam_instance_profile.web_service.name}"
+
+  # DEBUG
+  key_name = "${var.key_name}"
+
+  user_data = "${data.template_file.user_data.rendered}"
+
+  root_block_device {
+    volume_size = 20
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE THE ASG
-# ---------------------------------------------------------------------------------------------------------------------
+data "template_file" "user_data" {
+  template = "${file("${path.module}/user-data.sh")}"
+}
 
-resource "aws_autoscaling_group" "webserver_example" {
-  launch_configuration = "${aws_launch_configuration.webserver_example.id}"
-  availability_zones   = ["${data.aws_availability_zones.all.names}"]
+# instance role & profile
 
-  load_balancers    = ["${aws_elb.webserver_example.name}"]
+resource "aws_iam_instance_profile" "web_service" {
+  name = "${var.service_name}-web-service"
+  role = "${aws_iam_role.web_service.name}"
+}
+
+resource "aws_iam_role" "web_service" {
+  name = "${var.service_name}-web-service"
+
+  assume_role_policy = <<EOF
+{
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com",
+          "autoscaling.amazonaws.com"
+        ]
+      },
+      "Sid": ""
+    }
+  ],
+  "Version": "2012-10-17"
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "s3_all_access" {
+  name = "s3_all_access"
+  role = "${aws_iam_role.web_service.id}"
+
+  policy = <<EOF
+{
+  "Statement": [
+    {
+      "Action": [
+        "s3:*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+# auto-scaling group
+
+resource "aws_autoscaling_group" "web_service" {
+  name                      = "${var.service_name}-${aws_launch_configuration.web_service.name}"
+  launch_configuration      = "${aws_launch_configuration.web_service.id}"
+  availability_zones        = ["${data.aws_availability_zones.all.names}"]
+  load_balancers            = ["${aws_elb.web_service.name}"]
+  min_size                  = "${var.min_size}"
+  max_size                  = "${var.max_size}"
+  min_elb_capacity          = "${var.min_size}"
+  vpc_zone_identifier       = ["${data.terraform_remote_state.vpc.public_subnets}"]
+  wait_for_capacity_timeout = "0"
+
   health_check_type = "ELB"
 
-  min_size = "${var.min_size}"
-  max_size = "${var.max_size}"
+  lifecycle {
+    create_before_destroy = true
+  }
 
   tag {
     key                 = "Name"
-    value               = "${var.name}"
+    value               = "${var.service_name}"
     propagate_at_launch = true
   }
 }
 
+data "terraform_remote_state" "vpc" {
+  backend = "s3"
+
+  config {
+    bucket = "${var.tfstate_bucket}"
+    key    = "${var.vpc_remote_state_key}"
+    region = "${var.tfstate_region}"
+  }
+}
+
+resource "aws_security_group" "instance" {
+  name   = "${var.service_name}-instance"
+  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# DEBUG ----------------------------------------------------
+
+resource "aws_security_group_rule" "allow_ssh_inbound_instance" {
+  type              = "ingress"
+  security_group_id = "${aws_security_group.instance.id}"
+
+  from_port   = 22
+  to_port     = 22
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+# -------------------------------------------------------------
+
+resource "aws_security_group_rule" "allow_http_outbound_instance" {
+  type              = "egress"
+  security_group_id = "${aws_security_group.instance.id}"
+
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "allow_http_inbound_instance" {
+  type              = "ingress"
+  security_group_id = "${aws_security_group.instance.id}"
+
+  from_port   = "${var.server_port}"
+  to_port     = "${var.server_port}"
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
 data "aws_availability_zones" "all" {}
 
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE THE LAUNCH CONFIGURATION
-# This defines what runs on each EC2 Instance in the ASG. To keep the example simple, we run a plain Ubuntu AMI and
-# configure a User Data scripts that runs a dirt-simple "Hello, World" web server. In real-world usage, you'd want to
-# package the web server code into a custom AMI (rather than shoving it into User Data) and pass in the ID of that AMI
-# as a variable.
-# ---------------------------------------------------------------------------------------------------------------------
+# elb
 
-resource "aws_launch_configuration" "webserver_example" {
-  image_id        = "${data.aws_ami.ubuntu.id}"
-  instance_type   = "${var.instance_type}"
-  security_groups = ["${aws_security_group.asg.id}"]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              echo "Hello, World" > index.html
-              nohup busybox httpd -f -p "${var.server_port}" &
-              EOF
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-
-  filter {
-    name   = "image-type"
-    values = ["machine"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
-  }
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE A SECURITY GROUP FOR THE ASG
-# To keep the example simple, we configure the EC2 Instances to allow inbound traffic from anywhere. In real-world
-# usage, you should lock the Instances down so they only allow traffic from trusted sources (e.g. the ELB).
-# ---------------------------------------------------------------------------------------------------------------------
-
-resource "aws_security_group" "asg" {
-  name = "${var.name}-asg"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_security_group_rule" "asg_allow_http_inbound" {
-  type              = "ingress"
-  from_port         = "${var.server_port}"
-  to_port           = "${var.server_port}"
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.asg.id}"
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE AN ELB TO ROUTE TRAFFIC ACROSS THE ASG
-# ---------------------------------------------------------------------------------------------------------------------
-
-resource "aws_elb" "webserver_example" {
-  name               = "${var.name}"
-  availability_zones = ["${data.aws_availability_zones.all.names}"]
-  security_groups    = ["${aws_security_group.elb.id}"]
+resource "aws_elb" "web_service" {
+  name            = "${var.service_name}-elb"
+  subnets         = ["${data.terraform_remote_state.vpc.public_subnets}"]
+  security_groups = ["${aws_security_group.elb.id}"]
 
   listener {
-    lb_port           = "${var.elb_port}"
+    lb_port           = 80
     lb_protocol       = "http"
     instance_port     = "${var.server_port}"
     instance_protocol = "http"
   }
 
   health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
+    healthy_threshold   = 10
+    unhealthy_threshold = 6
     timeout             = 3
-    interval            = 30
+    interval            = 120
     target              = "HTTP:${var.server_port}/"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE A SECURITY GROUP FOR THE ELB
-# To keep the example simple, we configure the ELB to allow inbound requests from anywhere. We also allow it to make
-# outbound requests to anywhere so it can perform health checks. In real-world usage, you should lock the ELB down
-# so it only allows traffic to/from trusted sources.
-# ---------------------------------------------------------------------------------------------------------------------
-
+# allow to talk to outside world, since default is not
 resource "aws_security_group" "elb" {
-  name = "${var.name}-elb"
+  name   = "${var.service_name}-elb"
+  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
-resource "aws_security_group_rule" "elb_allow_http_inbound" {
+resource "aws_security_group_rule" "allow_http_inbound" {
   type              = "ingress"
-  from_port         = "${var.elb_port}"
-  to_port           = "${var.elb_port}"
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.elb.id}"
+
+  from_port   = 80
+  to_port     = 80
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "elb_allow_all_outbound" {
+resource "aws_security_group_rule" "allow_http_outbound" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.elb.id}"
+
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+# codedeploy app
+# https://github.com/skyscrapers/terraform-codedeploy/blob/master/app/codedeploy.tf
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_codedeploy_app" "codedeploy_app" {
+  name = "${var.service_name}-codedeploy-app"
+}
+
+resource "aws_codedeploy_deployment_group" "deployment_group" {
+  app_name              = "${aws_codedeploy_app.codedeploy_app.name}"
+  deployment_group_name = "${var.service_name}"
+  service_role_arn      = "${data.terraform_remote_state.codedeploy.role_arn}"
+  autoscaling_groups    = ["${aws_autoscaling_group.web_service.name}"]
+
+  load_balancer_info {
+    elb_info {
+      name = "${aws_elb.web_service.name}"
+    }
+  }
+
+  # deployment_style {
+  #   deployment_option = "WITH_TRAFFIC_CONTROL"
+  #   deployment_type   = "BLUE_GREEN"
+  # }
+
+  auto_rollback_configuration {
+    enabled = "${var.rollback_enabled}"
+    events  = "${var.rollback_events}"
+  }
+}
+
+resource "aws_iam_policy" "deployer_policy" {
+  name        = "${var.service_name}-deployer-policy"
+  description = "Policy to create a codedeploy application revision and to deploy it, for application ${aws_codedeploy_app.codedeploy_app.name}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "codedeploy:CreateDeployment"
+      ],
+      "Resource" : [
+        "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.codedeploy_app.name}/*"
+      ]
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "codedeploy:GetDeploymentConfig"
+      ],
+      "Resource" : [
+        "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:deploymentconfig:*"
+      ]
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "codedeploy:GetApplicationRevision"
+      ],
+      "Resource" : [
+        "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.codedeploy_app.name}"
+      ]
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "codedeploy:RegisterApplicationRevision"
+      ],
+      "Resource" : [
+        "arn:aws:codedeploy:${var.aws_region}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.codedeploy_app.name}"
+      ]
+    }
+    ${element(formatlist(", { \"Effect\" : \"Allow\", \"Action\" : [ \"s3:PutObject*\", \"s3:ListBucket\" ], \"Resource\" : [ \"%s/*\", \"%s\" ] }, { \"Effect\" : \"Allow\", \"Action\" : [ \"s3:ListAllMyBuckets\" ], \"Resource\" : [ \"*\" ] }", compact(list(data.terraform_remote_state.codedeploy.bucket_arn)), compact(list(data.terraform_remote_state.codedeploy.bucket_arn))), 0)}
+  ]
+}
+EOF
+}
+
+data "terraform_remote_state" "codedeploy" {
+  backend = "s3"
+
+  config {
+    bucket = "${var.tfstate_bucket}"
+    key    = "${var.codedeploy_remote_state_key}"
+    region = "${var.tfstate_region}"
+  }
 }

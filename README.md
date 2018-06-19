@@ -1,6 +1,26 @@
 # substructure
 
 
+## Notes
+
+Inside each directory here are Terraform modules to create specific (sets of) AWS resources.
+
+
+
+## Bastion Host
+
+The Bastion Host has a public IP address in our VPC, only accessible via SSH with `authorized_keys`. This is the entry point to the rest of the system designed to comprise only private IP addresses.
+
+Upon deploying the Bastion Host, there is one manual step to deliver `authorized_keys` to each private server.
+
+
+
+## Casbah Host
+
+The Casbah Host enables nREPL connection to running Clojure applications.
+
+
+
 ## IAM module
 
 

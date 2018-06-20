@@ -61,3 +61,7 @@ output "web_inbound_id" {
 output "internal_inbound_id" {
   value = "${aws_security_group.internal_inbound.id}"
 }
+
+output "default_group_id" {
+  value = "${aws_security_group.default.id}"
+}

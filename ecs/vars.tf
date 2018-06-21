@@ -4,6 +4,10 @@ variable "aws_region" {
   description = "aws region"
 }
 
+variable "environment" {
+  description = "environment, or aws account"
+}
+
 variable "vpc_remote_state_key" {
   description = "key of the vpc remote state within `tfstate_bucket`"
 }
@@ -20,11 +24,7 @@ variable "tfstate_region" {
 # ECS-SPECIFIC
 
 variable "repository_name" {
-  description = "The repository that holds our Docker image."
-}
-
-variable "environment" {
-  description = "TODO:"
+  description = "The repository that holds our Docker images."
 }
 
 variable "cpu" {

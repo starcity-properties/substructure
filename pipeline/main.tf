@@ -1,21 +1,13 @@
-<<<<<<< HEAD
 # setup
 
-=======
->>>>>>> 3864497... initialize pipeline module
 terraform {
   backend "s3" {}
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 3864497... initialize pipeline module
 provider "aws" {
   region = "${var.aws_region}"
 }
 
-<<<<<<< HEAD
 # s3 bucket
 
 resource "aws_s3_bucket" "pipeline" {
@@ -24,13 +16,9 @@ resource "aws_s3_bucket" "pipeline" {
 
   versioning {
     enabled = true
-=======
-
-resource "aws_s3_bucket" "source" {
-  bucket        = "clj-app-experiment-source"
-  acl           = "private"
-  force_destroy = true
+  }
 }
+
 
 resource "aws_iam_role" "codepipeline_role" {
   name               = "codepipeline-role"
@@ -132,7 +120,7 @@ resource "aws_codepipeline" "pipeline" {
         Owner      = "tdiede"
         Repo       = "cornerstone"
         Branch     = "master"
-        OAuthToken = "ecb704180d0af82eb6215dc50a0f354bc142b49f"
+        OAuthToken = "**"
       }
     }
   }
@@ -172,6 +160,5 @@ resource "aws_codepipeline" "pipeline" {
         FileName    = "imagedefinitions.json"
       }
     }
->>>>>>> 3864497... initialize pipeline module
   }
 }

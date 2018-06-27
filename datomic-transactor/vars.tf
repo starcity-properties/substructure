@@ -1,5 +1,11 @@
+# INHERITED
+
 variable "aws_region" {
   description = "aws region"
+}
+
+variable "vpc_remote_state_key" {
+  description = "key for the vpc remote state file"
 }
 
 variable "tfstate_bucket" {
@@ -10,9 +16,14 @@ variable "tfstate_region" {
   description = "region of the tfstate_global_bucket"
 }
 
-variable "vpc_remote_state_key" {
-  description = "key for the vpc remote state file"
-}
+
+
+
+
+
+
+
+
 
 variable "ami" {
   description = "ami to use for transactor instance"

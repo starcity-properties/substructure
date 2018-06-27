@@ -37,7 +37,6 @@ resource "aws_ecs_task_definition" "web_service" {
   memory                   = 512
   execution_role_arn       = "${aws_iam_role.ecs_execution_role.arn}"
   task_role_arn            = "${aws_iam_role.ecs_execution_role.arn}"
-
 }
 
 
@@ -66,6 +65,7 @@ resource "aws_ecs_service" "web_service" {
       "${data.terraform_remote_state.vpc.default_group_id}",
       "${aws_security_group.ecs_service.id}"
     ]
+
     assign_public_ip = true
   }
 

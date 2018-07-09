@@ -31,24 +31,11 @@ variable "instance_type" {
 
 variable "key_name" {
   description = "the name of the key pair associated with this instance"
-  default     = "moat"
 }
 
 variable "users" {
   description = "users to be created on bastion"
-  default     = "josh therese diana queenie allen andres"
 }
-
-
-
-
-# TODO
-variable "route53_subdomain" {
-  description = "the name of the record"
-}
-
-
-
 
 
 # TODO
@@ -57,3 +44,9 @@ variable "route53_subdomain" {
 #   default     = {}
 #   type        = "map"
 # }
+
+
+# TODO
+variable "route53_subdomain" {
+  description = "the name of the record"
+}

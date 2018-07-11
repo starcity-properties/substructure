@@ -19,11 +19,11 @@ resource "aws_s3_bucket" "transactor_logs" {
 
 
 # transactor launch config
-resource "aws_launch_configuration" "transactor" {
-  name_prefix          = "${var.transactor_name}-datomic-transactor-"
+resource "aws_launch_configuration" "datomic_transactor" {
+  name_prefix          = "datomic-transactor-"
   image_id             = "${var.ami}"
   instance_type        = "${var.transactor_instance_type}"
-  iam_instance_profile = "${aws_iam_instance_profile.transactor.name}"
+  iam_instance_profile = "${aws_iam_instance_profile.datomic_transactor.name}"
 
   # TODO:
   security_groups = ["${data.terraform_remote_state.vpc.internal_inbound_id}"]
@@ -48,7 +48,7 @@ data "template_file" "transactor_user_data" {
     xmx                    = "${var.transactor_xmx}"
     java_opts              = "${var.transactor_java_opts}"
     region                 = "${var.aws_region}"
-    transactor_role        = "${aws_iam_role.transactor.name}"
+    transactor_role        = "${aws_iam_role.datomic_transactor.name}"
     memory_index_max       = "${var.transactor_memory_index_max}"
     s3_log_bucket          = "${aws_s3_bucket.transactor_logs.id}"
     memory_index_threshold = "${var.transactor_memory_index_threshold}"
@@ -68,13 +68,13 @@ resource "aws_autoscaling_group" "datomic_asg" {
   name                 = "${var.transactor_name}_transactors"
   max_size             = "${var.instance_count}"
   min_size             = "${var.instance_count}"
-  launch_configuration = "${aws_launch_configuration.transactor.name}"
+  launch_configuration = "${aws_launch_configuration.datomic_transactor.name}"
 
   vpc_zone_identifier = ["${data.terraform_remote_state.vpc.private_subnets}"]
 
   tag {
     key                 = "Name"
-    value               = "${var.transactor_name}-transactor"
+    value               = "datomic-transactor"
     propagate_at_launch = true
   }
 

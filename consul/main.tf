@@ -7,11 +7,6 @@ provider "aws" {
 }
 
 
-resource "aws_key_pair" "consul" { key_name = "consul" public_key = "ssh-rsa
-  AAAAB3NzaC1yc2EAAAADAQABAAABAQCiinrqIDh24eatNKyHzV6jmigPxRel0RY6oREIBfS10ZtJLba1JcYkY2p+7UkSn7BAMQD+RtiZ17KAf+k9JLH8mob+u6U5krRvQZZMHxkL2Yy+C/untuIl9fRWu8sGH0wCPChF4PO3ubC6zPv6oSbQWmPleJptM2ouqq3GdslxCM9Vla5/RQMSAvXa3+EpgKDCcAHsMwsQCeP/JfEjN+epWaMAP99rqxVJX5CBKOGGC5f/hAPW7aSKBLqU1MY3qvD0A0Fekw2Z53F5PoWpch9YQnLD1wYz5ZiSHLc8jvDz6tlWrwikKW6MgwBFwOHhtlA+J85wUHAchUZjFSLeRKD1"
-  }
-
-
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE CONSUL SERVER NODES
 # ---------------------------------------------------------------------------------------------------------------------

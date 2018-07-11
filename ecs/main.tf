@@ -44,8 +44,9 @@ data "template_file" "web_task" {
   template = "${file("${path.module}/tasks/web_task_definition.json")}"
 
   vars {
-    image      = "starcity/cornerstone"
-    # image           = "${aws_ecr_repository.clj_app.repository_url}"
+    # image      = "starcity/cornerstone"
+    image      = "${var.repository_name}"
+    # image      = "${aws_ecr_repository.clj_app.repository_url}"
     aws_region = "${var.aws_region}"
     log_group  = "${aws_cloudwatch_log_group.clj_app.name}"
   }

@@ -8,6 +8,10 @@ variable "vpc_remote_state_key" {
   description = "key of the vpc remote state within `tfstate_bucket`"
 }
 
+variable "route53_remote_state_key" {
+  description = "key of the route53 remote state within `tfstate_bucket`"
+}
+
 variable "tfstate_bucket" {
   description = "bucket to find the remote terraform state"
 }
@@ -16,11 +20,14 @@ variable "tfstate_region" {
   description = "region of the remote terraform state bucket"
 }
 
-
 # ---------------------------------------------------------------------------------------------------------------------
 # REQUIRED PARAMETERS
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
+
+variable "ssh_key_name" {
+  description = "The name of an EC2 Key Pair that can be used to SSH to the EC2 Instances in this cluster. Set to an empty string to not associate a Key Pair."
+}
 
 variable "ami_id" {
   description = "The ID of the AMI to run in the cluster. This should be an AMI built from the Packer template under examples/vault-consul-ami/vault-consul.json. If no AMI is specified, the template will 'just work' by using the example public AMIs. WARNING! Do not use the example AMIs in a production setting!"
@@ -39,8 +46,12 @@ variable "vault_domain_name" {
   description = "The domain name to use in the DNS A record for the Vault ELB (e.g. vault.example.com). Make sure that a) this is a domain within the var.hosted_zone_domain_name hosted zone and b) this is the same domain name you used in the TLS certificates for Vault. Only used if var.create_dns_entry is true."
 }
 
-variable "ssh_key_name" {
-  description = "The name of an EC2 Key Pair that can be used to SSH to the EC2 Instances in this cluster. Set to an empty string to not associate a Key Pair."
+variable "vault_host" {
+  description = "TODO"
+}
+
+variable "vault_port" {
+  description = "TODO"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

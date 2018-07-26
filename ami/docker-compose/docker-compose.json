@@ -27,6 +27,10 @@
             "destination": "/tmp/with-consul.hcl",
             "type": "file"
         },{
+            "source": "./config/policies",
+            "destination": "/tmp",
+            "type": "file"
+        },{
             "type": "shell",
             "inline": [
                 "sudo apt-get update",

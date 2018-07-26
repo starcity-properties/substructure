@@ -29,10 +29,10 @@ variable "repository_name" {
 
 variable "cpu" {
   description = "cpu power"
-  default = "256"
+  default = 256
 }
 
 variable "memory" {
   description = "memory allocation"
-  default = "512"
+  default = 512
 }

@@ -24,6 +24,37 @@ provider "aws" {
 #   tls_disable = 1
 # }
 
+# provider "vault" {
+#   # This will default to using $VAULT_ADDR
+#   address = "http://${var.vault_host}:${var.vault_port}"
+#   token   = ""
+# }
+
+# resource "vault_generic_secret" "example" {
+#   path = "secret/foo"
+
+#   data_json = <<EOT
+# {
+#   "foo":   "bar",
+#   "pizza": "cheese"
+# }
+# EOT
+# }
+
+# resource "vault_auth_backend" "example" {
+#   type = "github"
+# }
+
+# resource "vault_policy" "example" {
+#   name = "dev-team"
+
+#   policy = <<EOT
+# path "auth/github" {
+#   policy = "read"
+# }
+# EOT
+# }
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE VAULT SERVER CLUSTER
 # ---------------------------------------------------------------------------------------------------------------------
@@ -40,8 +71,8 @@ module "vault_cluster" {
   ami_id    = "${var.ami_id}"
   user_data = "${data.template_file.user_data_vault_cluster.rendered}"
 
-  vpc_id     = "${data.aws_vpc.default.id}"
-  subnet_ids = "${data.aws_subnet_ids.default.ids}"
+  vpc_id     = "${data.terraform_remote_state.vpc.vpc_id}"
+  subnet_ids = "${data.terraform_remote_state.vpc.private_subnets}"
 
   # Do NOT use the ELB for the ASG health check, or the ASG will assume all sealed instances are unhealthy and
   # repeatedly try to redeploy them.
@@ -111,8 +142,8 @@ module "vault_elb" {
 
   name = "${var.vault_cluster_name}"
 
-  vpc_id     = "${data.aws_vpc.default.id}"
-  subnet_ids = "${data.aws_subnet_ids.default.ids}"
+  vpc_id     = "${data.terraform_remote_state.vpc.vpc_id}"
+  subnet_ids = "${data.terraform_remote_state.vpc.private_subnets}"
 
   # Associate the ELB with the instances created by the Vault Autoscaling group
   vault_asg_name = "${module.vault_cluster.asg_name}"
@@ -123,14 +154,14 @@ module "vault_elb" {
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
   allowed_inbound_cidr_blocks = ["0.0.0.0/0"]
 
-  # # In order to access Vault over HTTPS, we need a domain name that matches the TLS cert
-  # create_dns_entry = "${var.create_dns_entry}"
+  # In order to access Vault over HTTPS, we need a domain name that matches the TLS cert
+  create_dns_entry = "${var.create_dns_entry}"
 
-  # # Terraform conditionals are not short-circuiting, so we use join as a workaround to avoid errors when the
-  # # aws_route53_zone data source isn't actually set: https://github.com/hashicorp/hil/issues/50
-  # hosted_zone_id = "${var.create_dns_entry ? join("", data.aws_route53_zone.selected.*.zone_id) : ""}"
+  # Terraform conditionals are not short-circuiting, so we use join as a workaround to avoid errors when the
+  # aws_route53_zone data source isn't actually set: https://github.com/hashicorp/hil/issues/50
+  hosted_zone_id = "${data.terraform_remote_state.route53.route53_zone_id_stage}"
 
-  # domain_name = "${var.vault_domain_name}"
+  domain_name = "${var.vault_domain_name}"
 }
 
 # Look up the Route 53 Hosted Zone by domain name
@@ -157,8 +188,8 @@ module "consul_cluster" {
   ami_id    = "${var.ami_id}"
   user_data = "${data.template_file.user_data_consul.rendered}"
 
-  vpc_id     = "${data.aws_vpc.default.id}"
-  subnet_ids = "${data.aws_subnet_ids.default.ids}"
+  vpc_id     = "${data.terraform_remote_state.vpc.vpc_id}"
+  subnet_ids = "${data.terraform_remote_state.vpc.private_subnets}"
 
   # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
   # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
@@ -180,21 +211,4 @@ data "template_file" "user_data_consul" {
     consul_cluster_tag_key   = "${var.consul_cluster_tag_key}"
     consul_cluster_tag_value = "${var.consul_cluster_name}"
   }
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY THE CLUSTERS IN THE DEFAULT VPC AND AVAILABILITY ZONES
-# Using the default VPC and subnets makes this example easy to run and test, but it means Consul and Vault are
-# accessible from the public Internet. In a production deployment, we strongly recommend deploying into a custom VPC
-# and private subnets. Only the ELB should run in the public subnets.
-# ---------------------------------------------------------------------------------------------------------------------
-
-data "aws_vpc" "default" {
-  default = "${var.use_default_vpc}"
-  tags    = "${var.vpc_tags}"
-}
-
-data "aws_subnet_ids" "default" {
-  vpc_id = "${data.aws_vpc.default.id}"
-  tags   = "${var.subnet_tags}"
 }

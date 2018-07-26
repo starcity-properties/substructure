@@ -1,4 +1,7 @@
-# INHERITED
+# ---------------------------------------------------------------------------------------------------------------------
+# INHERITED PARAMETERS
+# These parameters extend across modules.
+# ---------------------------------------------------------------------------------------------------------------------
 
 variable "aws_region" {
   description = "aws region"
@@ -16,8 +19,14 @@ variable "vpc_remote_state_key" {
   description = "key for the vpc remote state file"
 }
 
+variable "route53_remote_state_key" {
+  description = "key for the route53 remote state file"
+}
 
-# BASTION
+# ---------------------------------------------------------------------------------------------------------------------
+# REQUIRED PARAMETERS
+# You must provide a value for each of these parameters.
+# ---------------------------------------------------------------------------------------------------------------------
 
 variable "ami" {
   description = "ami to use for the instance"

@@ -24,7 +24,7 @@ resource "aws_instance" "bastion" {
   key_name               = "${var.key_name}"
   ami                    = "${var.ami}"
   instance_type          = "${var.instance_type}"
-  subnet_id              = "${element(data.terraform_remote_state.vpc.public_subnets, 0)}"
+  subnet_id              = "${element(data.terraform_remote_state.vpc.public_subnet_ids, 0)}"
   vpc_security_group_ids = [
     "${data.terraform_remote_state.vpc.bastion_inbound_id}",
     "${data.terraform_remote_state.vpc.bastion_outbound_id}"

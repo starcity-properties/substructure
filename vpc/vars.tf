@@ -13,10 +13,12 @@ variable "availability_zones" {
 
 variable "enable_dns_hostnames" {
   description = "TODO:"
+  default     = true
 }
 
 variable "enable_dns_support" {
   description = "TODO:"
+  default     = true
 }
 
 variable "ip_range" {

@@ -12,7 +12,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_support   = "${var.enable_dns_support}"
 
   tags {
-    Name = "vpc"
+    Name = "vpc-starcity"
   }
 }
 

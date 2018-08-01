@@ -1,0 +1,32 @@
+{
+    "min_packer_version": "0.12.0",
+    "variables": {
+        "lein_version": "lein-2.8.1",
+        "aws_profile": "{{env `AWS_PROFILE`}}",
+        "aws_region": "us-west-2"
+    },
+    "builders": [{
+        "ami_name": "casbah-repl-{{user `lein_version`}}",
+        "instance_type": "t2.micro",
+        "region": "{{user `aws_region`}}",
+        "profile": "{{user `aws_profile`}}",
+        "source_ami": "ami-0ad99772",
+        "type": "amazon-ebs",
+        "ssh_username": "ec2-user"
+    }],
+    "provisioners": [
+        {
+            "source": "./scripts/lein",
+            "destination": "/tmp/lein",
+            "type": "file"
+        },{
+            "type": "shell",
+            "inline": [
+                "java -version",
+                "sudo mv /tmp/lein /bin/lein",
+                "sudo chmod a+x /bin/lein",
+                "lein"
+            ]
+        }
+    ]
+}

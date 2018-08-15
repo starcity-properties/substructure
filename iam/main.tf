@@ -41,75 +41,29 @@ resource "aws_iam_group" "application" {
 /*==== apps =======*/
 
 # imported
-resource "aws_iam_user" "starcity_web" {
-  name = "starcity-web"
-  path = "/"
-}
-
-resource "aws_iam_user" "odin" {
-  name = "odin"
-  path = "/"
-}
-
-resource "aws_iam_user" "teller" {
-  name = "teller"
+resource "aws_iam_user" "app" {
+  count = "${length(var.applications)}"
+  name = "${element(var.applications, count.index)}"
   path = "/"
 }
 
 /*==== devs =======*/
 
 # imported
-resource "aws_iam_user" "venator" {
-  # josh
-  name = "venator"
+resource "aws_iam_user" "dev" {
+  count = "${length(var.developers)}"
+  name = "${element(var.developers, count.index)}"
   path = "/"
 }
-
-# imported
-resource "aws_iam_user" "therese" {
-  # therese
-  name = "therese"
-  path = "/"
-}
-
-resource "aws_iam_user" "asmodeus" {
-  # andres
-  name = "asmodeus"
-  path = "/"
-}
-
-resource "aws_iam_user" "queenie" {
-  # queenie
-  name = "queenie"
-  path = "/"
-}
-
-resource "aws_iam_user" "allen" {
-  # allen
-  name = "allen"
-  path = "/"
-}
-
-resource "aws_iam_user" "diana" {
-  # diana
-  name = "diana"
-  path = "/"
-}
-
 
 /*==== membership =*/
 
 /* DEVS */
 resource "aws_iam_group_membership" "developers" {
-  name = "starcity-engineering-team"
+  name = "engineering-team"
 
   users = [
-    "${aws_iam_user.venator.name}",
-    "${aws_iam_user.therese.name}",
-    "${aws_iam_user.asmodeus.name}",
-    "${aws_iam_user.queenie.name}",
-    "${aws_iam_user.allen.name}",
-    "${aws_iam_user.diana.name}"
+    "${aws_iam_user.dev.*.name}"
   ]
 
   group = "${aws_iam_group.developer.name}"
@@ -117,20 +71,19 @@ resource "aws_iam_group_membership" "developers" {
 
 /* APPS */
 resource "aws_iam_group_membership" "applications" {
-  name = "starcity-applications"
+  name = "application-services"
 
   users = [
-    "${aws_iam_user.starcity_web.name}",
-    "${aws_iam_user.odin.name}",
-    "${aws_iam_user.teller.name}"
+    "${aws_iam_user.app.*.name}"
   ]
 
   group = "${aws_iam_group.application.name}"
 }
 
 /* ADMINS */
-resource "aws_iam_user_group_membership" "therese_administrator" {
-  user = "${aws_iam_user.therese.name}"
+resource "aws_iam_user_group_membership" "administrator" {
+  count = "${length(var.administrators)}"
+  user = "${element(var.administrators, count.index)}"
 
   groups = [
     "${aws_iam_group.dev_administrator.name}",
@@ -138,17 +91,6 @@ resource "aws_iam_user_group_membership" "therese_administrator" {
     "${aws_iam_group.prod_administrator.name}"
   ]
 }
-
-resource "aws_iam_user_group_membership" "venator_administrator" {
-  user = "${aws_iam_user.venator.name}"
-
-  groups = [
-    "${aws_iam_group.dev_administrator.name}",
-    "${aws_iam_group.stage_administrator.name}",
-    "${aws_iam_group.prod_administrator.name}"
-  ]
-}
-
 
 /*==== policies ===*/
 
@@ -163,7 +105,7 @@ resource "aws_iam_policy" "dev_admin" {
     "Statement": {
         "Effect": "Allow",
         "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::384840006489:role/administrator"
+        "Resource": "arn:aws:iam::${var.dev_account}:role/administrator"
     }
 }
 EOF
@@ -180,7 +122,7 @@ resource "aws_iam_policy" "stage_admin" {
     "Statement": {
         "Effect": "Allow",
         "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::713989059586:role/administrator"
+        "Resource": "arn:aws:iam::${var.stage_account}:role/administrator"
     }
 }
 EOF
@@ -197,7 +139,7 @@ resource "aws_iam_policy" "prod_admin" {
     "Statement": {
         "Effect": "Allow",
         "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::081344606926:role/administrator"
+        "Resource": "arn:aws:iam::${var.prod_account}:role/administrator"
     }
 }
 EOF

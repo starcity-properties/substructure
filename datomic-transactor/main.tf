@@ -55,10 +55,10 @@ data "template_file" "transactor_user_data" {
     object_cache_max       = "${var.transactor_object_cache_max}"
     license_key            = "${var.datomic_license}"
     cloudwatch_dimension   = "${var.cloudwatch_dimension}"
-
-    protocol            = "${var.protocol}"
-    aws_dynamodb_table  = "${var.dynamodb_table}"
-    aws_dynamodb_region = "${var.aws_region}"
+    partition              = "${var.partition}"
+    protocol               = "${var.protocol}"
+    aws_dynamodb_table     = "${var.dynamodb_table}"
+    aws_dynamodb_region    = "${var.aws_region}"
   }
 }
 

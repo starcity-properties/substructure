@@ -75,6 +75,10 @@ variable "cloudwatch_dimension" {
   description = "TODO:"
 }
 
+variable "partition" {
+  description = "name of database partition"
+}
+
 # variable "memcached_uri" {}
 
 variable "key_name" {

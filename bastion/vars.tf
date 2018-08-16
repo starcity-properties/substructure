@@ -38,8 +38,12 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
-variable "key_name" {
+variable "ssh_key_name" {
   description = "the name of the key pair associated with this instance"
+}
+
+variable "key_path" {
+  description = "the absolute path to the .pem key"
 }
 
 variable "users" {

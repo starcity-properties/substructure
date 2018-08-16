@@ -21,9 +21,10 @@ data "template_file" "bastion_user_data" {
 
 
 resource "aws_instance" "bastion" {
-  key_name               = "${var.key_name}"
-  ami                    = "${var.ami}"
-  instance_type          = "${var.instance_type}"
+  key_name      = "${var.ssh_key_name}"
+  ami           = "${var.ami}"
+  instance_type = "${var.instance_type}"
+
   subnet_id              = "${element(data.terraform_remote_state.vpc.public_subnet_ids, 0)}"
   vpc_security_group_ids = [
     "${data.terraform_remote_state.vpc.bastion_inbound_id}",
@@ -37,7 +38,7 @@ resource "aws_instance" "bastion" {
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = "${file("~/.aws/moat.pem")}"
+    private_key = "${file("${var.key_path}")}"
     agent       = false
   }
 

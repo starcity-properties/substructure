@@ -10,12 +10,18 @@ output "vpc_cidr" {
 
 # subnets
 
-output "private_subnets" {
+output "private_subnet_ids" {
   value = ["${aws_subnet.private.*.id}"]
 }
 
-output "public_subnets" {
+output "public_subnet_ids" {
   value = ["${aws_subnet.public.*.id}"]
+}
+
+# availability zones
+
+output "availability_zones" {
+  value = ["${var.availability_zones}"]
 }
 
 # nat eip & gateway ids

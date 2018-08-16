@@ -1,0 +1,57 @@
+{
+    "min_packer_version": "0.12.0",
+    "variables": {
+        "aws_profile": "{{env `AWS_PROFILE`}}",
+        "aws_region": "us-west-2"
+    },
+    "builders": [{
+        "ami_name": "docker-compose-{{user `aws_profile`}}",
+        "instance_type": "t2.micro",
+        "region": "{{user `aws_region`}}",
+        "profile": "{{user `aws_profile`}}",
+        "source_ami": "ami-a4148ddc",
+        "type": "amazon-ebs",
+        "ssh_username": "ubuntu"
+    }],
+    "provisioners": [
+        {
+            "source": "./scripts/docker-compose.yml",
+            "destination": "/tmp/docker-compose.yml",
+            "type": "file"
+        },{
+            "source": "./scripts/wait-for-it.sh",
+            "destination": "/tmp/wait-for-it.sh",
+            "type": "file"
+        },{
+            "source": "./config/with-consul.hcl",
+            "destination": "/tmp/with-consul.hcl",
+            "type": "file"
+        },{
+            "source": "./config/policies",
+            "destination": "/tmp",
+            "type": "file"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo apt-get update",
+                "sudo apt-get -y install python-pip",
+                "sudo pip install docker-compose",
+                "sudo chmod +x /usr/local/bin/docker-compose"
+            ]
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mkdir -vp /cault/config/vault/policies && sudo mkdir -vp /cault/tools/vault",
+                "sudo chown -R ubuntu /cault"
+            ]
+        },{
+            "type": "shell",
+            "inline": [
+                "mv /tmp/docker-compose.yml /cault/",
+                "mv /tmp/with-consul.hcl /cault/config/vault/",
+                "mv /tmp/wait-for-it.sh /cault/tools/",
+                "chmod +x /cault/tools/wait-for-it.sh"
+            ]
+        }
+    ]
+}

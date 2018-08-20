@@ -4,6 +4,7 @@ data "aws_caller_identity" "current" {}
 resource "aws_iam_role" "datomic_transactor" {
   name = "datomic-transactor-role"
 
+
   assume_role_policy = <<EOF
 {
   "Statement": [
@@ -20,6 +21,7 @@ resource "aws_iam_role" "datomic_transactor" {
 }
 EOF
 }
+
 
 # instance profile which assumes the transactor role
 resource "aws_iam_instance_profile" "datomic_transactor" {
@@ -52,6 +54,7 @@ EOF
 # policy with write access to cloudwatch
 resource "aws_iam_role_policy" "transactor_cloudwatch" {
   name = "cloudwatch_access"
+
   role = "${aws_iam_role.datomic_transactor.id}"
 
   policy = <<EOF
@@ -75,6 +78,7 @@ resource "aws_iam_role_policy" "transactor_cloudwatch" {
 EOF
 }
 
+
 # policy with write access to the transactor logs
 resource "aws_iam_role_policy" "transactor_logs" {
   name = "s3_logs_access"
@@ -97,3 +101,4 @@ resource "aws_iam_role_policy" "transactor_logs" {
 }
 EOF
 }
+

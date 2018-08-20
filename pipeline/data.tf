@@ -1,13 +1,3 @@
-data "terraform_remote_state" "casbah" {
-  backend = "s3"
-
-  config {
-    bucket = "${var.tfstate_bucket}"
-    key    = "${var.casbah_remote_state_key}"
-    region = "${var.tfstate_region}"
-  }
-}
-
 data "terraform_remote_state" "vpc" {
   backend = "s3"
 
@@ -18,12 +8,14 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-data "terraform_remote_state" "route53" {
+
+
+data "terraform_remote_state" "ecs" {
   backend = "s3"
 
   config {
     bucket = "${var.tfstate_bucket}"
-    key    = "${var.route53_remote_state_key}"
+    key    = "${var.ecs_remote_state_key}"
     region = "${var.tfstate_region}"
   }
 }

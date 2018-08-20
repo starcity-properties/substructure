@@ -9,7 +9,7 @@ provider "aws" {
 }
 
 
-# bastion instance
+# provisioning script
 
 data "template_file" "bastion_user_data" {
   template = "${file("${path.module}/scripts/provision.sh")}"
@@ -20,18 +20,20 @@ data "template_file" "bastion_user_data" {
 }
 
 
+# bastion instance
+
 resource "aws_instance" "bastion" {
   key_name      = "${var.ssh_key_name}"
-  ami           = "${var.ami}"
+  ami           = "${var.ami_id}"
   instance_type = "${var.instance_type}"
 
-  subnet_id              = "${element(data.terraform_remote_state.vpc.public_subnet_ids, 0)}"
+  user_data = "${data.template_file.bastion_user_data.rendered}"
+
+  subnet_id              = "${data.terraform_remote_state.casbah.casbah_subnet_id}"
   vpc_security_group_ids = [
     "${data.terraform_remote_state.vpc.bastion_inbound_id}",
     "${data.terraform_remote_state.vpc.bastion_outbound_id}"
   ]
-
-  user_data = "${data.template_file.bastion_user_data.rendered}"
 
   associate_public_ip_address = true
 
@@ -43,9 +45,25 @@ resource "aws_instance" "bastion" {
   }
 
   provisioner "file" {
-    source      = "${path.module}/scripts/authorized_keys"
+    source      = "${path.module}/keys/authorized_keys"
     destination = "/tmp/authorized_keys"
   }
+
+  provisioner "file" {
+    source      = "${path.module}/keys/casbah_authorized_keys"
+    destination = "/tmp/casbah_authorized_keys"
+  }
+
+  provisioner "local-exec" {
+    command = "scp -i ~/.aws/moat.pem ~/.aws/casbah.pem ubuntu@${aws_instance.bastion.public_dns}:~/.ssh/casbah.pem"
+  }
+
+  # TODO: this command currently must be run manually on bastion after deployed in order to finish up the process of getting authorized_keys onto private server
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "scp -i ~/.ssh/casbah.pem /tmp/casbah_authorized_keys ec2-user@${data.terraform_remote_state.casbah.casbah_private_ip}:~/.ssh/authorized_keys"
+  #   ]
+  # }
 
   tags {
     Name = "bastion_host"

@@ -1,13 +1,3 @@
-data "terraform_remote_state" "casbah" {
-  backend = "s3"
-
-  config {
-    bucket = "${var.tfstate_bucket}"
-    key    = "${var.casbah_remote_state_key}"
-    region = "${var.tfstate_region}"
-  }
-}
-
 data "terraform_remote_state" "vpc" {
   backend = "s3"
 

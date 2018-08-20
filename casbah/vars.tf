@@ -15,10 +15,6 @@ variable "tfstate_region" {
   description = "region of the tfstate_global_bucket"
 }
 
-variable "casbah_remote_state_key" {
-  description = "key for the casbah remote state file"
-}
-
 variable "vpc_remote_state_key" {
   description = "key for the vpc remote state file"
 }
@@ -32,33 +28,14 @@ variable "route53_remote_state_key" {
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "ami_id" {
-  description = "ami to use for the instance"
-}
-
 variable "ssh_key_name" {
   description = "the name of the key pair associated with this instance"
 }
 
-variable "key_path" {
-  description = "the absolute path to the .pem key"
-}
-
-variable "users" {
-  description = "users to be created on bastion"
-}
-
-# TODO
-# variable "public_keys" {
-#   description = "public keys to be loaded onto bastion"
-#   default     = {}
-#   type        = "map"
+# # TODO
+# variable "route53_subdomain" {
+#   description = "the name of the record"
 # }
-
-# TODO
-variable "route53_subdomain" {
-  description = "the name of the record"
-}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS

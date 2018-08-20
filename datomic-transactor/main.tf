@@ -1,10 +1,6 @@
-terraform {
-  backend "s3" {}
-}
-
-provider "aws" {
-  region = "${var.aws_region}"
-}
+/*====
+Datomic transactor (x1)
+======*/
 
 
 # s3 bucket for the transactor logs
@@ -18,9 +14,17 @@ resource "aws_s3_bucket" "transactor_logs" {
 }
 
 
+# instance profile which assumes the transactor role
+resource "aws_iam_instance_profile" "transactor" {
+  name = "${var.transactor_name}-dtx-transactor"
+  role = "${aws_iam_role.transactor.name}"
+}
+
+
 # transactor launch config
 resource "aws_launch_configuration" "datomic_transactor" {
-  name_prefix          = "datomic-transactor-"
+  name_prefix          = "dtx-"
+
   image_id             = "${var.ami}"
   instance_type        = "${var.transactor_instance_type}"
   iam_instance_profile = "${aws_iam_instance_profile.datomic_transactor.name}"
@@ -36,10 +40,12 @@ resource "aws_launch_configuration" "datomic_transactor" {
     device_name  = "/dev/sdb"
     virtual_name = "ephemeral0"
   }
+
   lifecycle {
     create_before_destroy = true
   }
 }
+
 
 data "template_file" "transactor_user_data" {
   template = "${file("${path.module}/files/run-transactor.sh")}"
@@ -61,6 +67,7 @@ data "template_file" "transactor_user_data" {
     aws_dynamodb_region    = "${var.aws_region}"
   }
 }
+
 
 # autoscaling group for launching transactors
 resource "aws_autoscaling_group" "datomic_asg" {

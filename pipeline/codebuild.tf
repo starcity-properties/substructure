@@ -32,10 +32,7 @@ data "template_file" "buildspec" {
     region             = "${var.aws_region}"
     repository_url     = "${data.terraform_remote_state.ecs.repository_url}"
     cluster_name       = "${data.terraform_remote_state.ecs.cluster_name}"
-    subnet_ids         = "subnet-b23f4acb"
-    security_group_ids = "sg-dbfcceaa"
+    subnets          = ["${data.terraform_remote_state.vpc.public_subnets}"]
+    security_groups  = ["${data.terraform_remote_state.vpc.default_group_id}"]
   }
 }
-
-# The security group ids attached where the single run task will be executed
-# The subnet id where single run task will be executed

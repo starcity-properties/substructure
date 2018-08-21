@@ -9,7 +9,8 @@ variable "aws_account_ids" {
   type = "map"
 }
 
-# REQUIRED ENVIRONMENT-SPECIFIC
+
+# CALCULATED
 
 <<<<<<< HEAD
 =======
@@ -40,8 +41,11 @@ variable "table_name" {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # TODO: move this to its proper place
 =======
+=======
+>>>>>>> add env -> account-id vars; cleanup
 =======
 variable "aws_account_id" {
   description = "the aws account id for respective environment: development, staging, or production"
@@ -57,4 +61,9 @@ variable "iam_policy_arns" {
 
 variable "table_name" {
   description = "the name of the DynamoDB table"
+=======
+variable "iam_policy_arns" {
+  description = "list of policies to be attached to a role"
+  type = "list"
+>>>>>>> add env -> account-id vars; cleanup
 }

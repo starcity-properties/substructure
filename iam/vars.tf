@@ -9,7 +9,9 @@ variable "aws_account_ids" {
   type = "map"
 }
 
+# REQUIRED ENVIRONMENT-SPECIFIC
 
+<<<<<<< HEAD
 # CALCULATED
 
 variable "aws_account_id" {
@@ -32,7 +34,17 @@ variable "table_name" {
   description = "the name of the database table"
 }
 
+=======
+variable "aws_account_id" {
+  description = "the aws account id for respective environment: development, staging, or production"
+}
+
+>>>>>>> separate global-iam declarations
 variable "iam_policy_arns" {
   description = "list of policies to be attached to a role"
   type = "list"
+}
+
+variable "table_name" {
+  description = "the name of the DynamoDB table"
 }

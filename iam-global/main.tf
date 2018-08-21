@@ -54,7 +54,10 @@ resource "aws_iam_user" "dev" {
   count = "${length(var.developers)}"
   name = "${element(var.developers, count.index)}"
   path = "/"
+<<<<<<< HEAD
   force_destroy = true
+=======
+>>>>>>> separate global-iam declarations
 }
 
 /*==== membership =*/
@@ -146,6 +149,7 @@ resource "aws_iam_policy" "prod_admin" {
 EOF
 }
 
+<<<<<<< HEAD
 resource "aws_iam_policy" "password_update" {
   name        = "password_update"
   path        = "/"
@@ -375,6 +379,8 @@ resource "aws_iam_policy" "view_only_full_access" {
 EOF
 }
 
+=======
+>>>>>>> separate global-iam declarations
 
 /*==== policy attachments =====*/
 
@@ -405,6 +411,7 @@ resource "aws_iam_policy_attachment" "prod_admin" {
   policy_arn = "${aws_iam_policy.prod_admin.arn}"
 }
 
+<<<<<<< HEAD
 resource "aws_iam_policy_attachment" "developers_iam" {
   name       = "developers_iam_policy"
   groups     = ["${aws_iam_group.developer.name}"]
@@ -418,3 +425,48 @@ resource "aws_iam_policy_attachment" "developers_view_only" {
 }
 
 /*==== roles ======*/
+=======
+
+/*==== roles ======*/
+
+
+
+
+/*==== account management ====*/
+
+resource "aws_iam_account_password_policy" "strict" {
+  minimum_password_length        = 8
+  require_lowercase_characters   = true
+  require_numbers                = true
+  require_uppercase_characters   = true
+  require_symbols                = true
+  allow_users_to_change_password = true
+}
+
+
+/*==== access keys + ssh =====*/
+
+resource "aws_iam_access_key" "lb" {
+  user    = "${aws_iam_user.lb.name}"
+  pgp_key = "keybase:some_person_that_exists"
+}
+
+output "secret" {
+  value = "${aws_iam_access_key.lb.encrypted_secret}"
+}
+
+resource "aws_iam_user_login_profile" "u" {
+  user    = "${aws_iam_user.u.name}"
+  pgp_key = "keybase:some_person_that_exists"
+}
+
+output "password" {
+  value = "${aws_iam_user_login_profile.u.encrypted_password}"
+}
+
+resource "aws_iam_user_ssh_key" "user" {
+  username   = "${aws_iam_user.user.name}"
+  encoding   = "SSH"
+  public_key = ""
+}
+>>>>>>> separate global-iam declarations

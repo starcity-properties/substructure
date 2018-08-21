@@ -5,39 +5,11 @@ variable "aws_region" {
 }
 
 
+# REQUIRED ENVIRONMENT-SPECIFIC
 
-# REQUIRED GLOBAL
-
-variable "applications" {
-  type = "list"
-  default = []
+variable "aws_account_id" {
+  description = "the aws account id for respective environment: development, staging, or production"
 }
-
-variable "developers" {
-  type = "list"
-  default = []
-}
-
-variable "administrators" {
-  type = "list"
-  default = []
-}
-
-variable "dev_account" {
-  description = "number associated with aws development account (role)"
-}
-
-variable "stage_account" {
-  description = "number associated with aws staging account (role)"
-}
-
-variable "prod_account" {
-  description = "number associated with aws production account (role)"
-}
-
-
-
-# ENVIRONMENT-SPECIFIC
 
 variable "iam_policy_arns" {
   description = "list of policies to be attached to a role"
@@ -47,4 +19,8 @@ variable "iam_policy_arns" {
 
 variable "db_access_type" {
   description = "one of `app` (backend service) or `web` to express type of resource requiring access to database"
+}
+
+variable "table_name" {
+  description = "the name of the DynamoDB table"
 }

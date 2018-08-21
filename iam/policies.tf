@@ -68,7 +68,7 @@ resource "aws_iam_policy" "dynamo_read" {
         "dynamodb:Query"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:dynamodb:*:${var.aws_account_id}:table/${var.system_name}"
+      "Resource": "arn:aws:dynamodb:*:${var.aws_account_id}:table/${var.table_name}"
     }
   ],
   "Version": "2012-10-17"
@@ -89,7 +89,7 @@ resource "aws_iam_policy" "dynamo_full_access" {
       "Sid": "DynamoTableFullAccess",
       "Action": "dynamodb:*",
       "Effect": "Allow",
-      "Resource": "arn:aws:dynamodb:*:${var.aws_account_id}:table/${var.system_name}"
+      "Resource": "arn:aws:dynamodb:*:${var.aws_account_id}:table/${var.table_name}"
     }
   ],
   "Version": "2012-10-17"

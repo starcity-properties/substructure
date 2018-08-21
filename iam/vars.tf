@@ -9,7 +9,20 @@ variable "aws_account_ids" {
   type = "map"
 }
 
+# REQUIRED ENVIRONMENT-SPECIFIC
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+# CALCULATED
+
+variable "aws_account_id" {
+  description = "the aws account id for respective environment: development, staging, or production"
+  default = "${lookup(var.aws_account_ids, var.environment, 'Not here!')}"
+}
+
+
+>>>>>>> separate global-iam declarations
 # REQUIRED ENVIRONMENT-SPECIFIC
 
 variable "environment" {
@@ -26,9 +39,22 @@ variable "table_name" {
   description = "the name of the database table"
 }
 
+<<<<<<< HEAD
 # TODO: move this to its proper place
+=======
+=======
+variable "aws_account_id" {
+  description = "the aws account id for respective environment: development, staging, or production"
+}
+
+>>>>>>> separate global-iam declarations
+>>>>>>> separate global-iam declarations
 variable "iam_policy_arns" {
   description = "list of policies to be attached to a role for a backend service or web application"
   type = "list"
   default = []
+}
+
+variable "table_name" {
+  description = "the name of the DynamoDB table"
 }

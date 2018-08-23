@@ -61,10 +61,17 @@ resource "aws_iam_user" "dev" {
   name = "${element(var.developers, count.index)}"
   path = "/"
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> separate global-iam declarations
+=======
+<<<<<<< HEAD
+>>>>>>> add developer policies and attach to group
   force_destroy = true
 =======
 >>>>>>> separate global-iam declarations
+=======
+  force_destroy = true
+>>>>>>> add developer policies and attach to group
 }
 
 /*==== membership =*/
@@ -160,6 +167,9 @@ EOF
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> add developer policies and attach to group
 resource "aws_iam_policy" "password_update" {
   name        = "password_update"
   path        = "/"
@@ -389,9 +399,15 @@ resource "aws_iam_policy" "view_only_full_access" {
 EOF
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> separate global-iam declarations
+<<<<<<< HEAD
 >>>>>>> separate global-iam declarations
+=======
+=======
+>>>>>>> add developer policies and attach to group
+>>>>>>> add developer policies and attach to group
 
 /*==== policy attachments =====*/
 
@@ -414,10 +430,14 @@ resource "aws_iam_policy_attachment" "prod_admin" {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> add developer policies and attach to group
 resource "aws_iam_policy_attachment" "developers_iam" {
   name       = "developers_iam_policy"
   groups     = ["${aws_iam_group.developer.name}"]
   policy_arn = "${aws_iam_policy.password_update.arn}"
+<<<<<<< HEAD
 }
 
 resource "aws_iam_policy_attachment" "developers_view_only" {
@@ -483,13 +503,17 @@ resource "aws_iam_access_key" "lb" {
 
 output "secret" {
   value = "${aws_iam_access_key.lb.encrypted_secret}"
+=======
+>>>>>>> add developer policies and attach to group
 }
 
-resource "aws_iam_user_login_profile" "u" {
-  user    = "${aws_iam_user.u.name}"
-  pgp_key = "keybase:some_person_that_exists"
+resource "aws_iam_policy_attachment" "developers_view_only" {
+  name       = "developers_view_only_policy"
+  groups     = ["${aws_iam_group.developer.name}"]
+  policy_arn = "${aws_iam_policy.view_only_full_access.arn}"
 }
 
+<<<<<<< HEAD
 output "password" {
   value = "${aws_iam_user_login_profile.u.encrypted_password}"
 }
@@ -500,4 +524,10 @@ resource "aws_iam_user_ssh_key" "user" {
   public_key = ""
 }
 >>>>>>> separate global-iam declarations
+<<<<<<< HEAD
 >>>>>>> separate global-iam declarations
+=======
+=======
+/*==== roles ======*/
+>>>>>>> add developer policies and attach to group
+>>>>>>> add developer policies and attach to group

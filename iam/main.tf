@@ -11,136 +11,37 @@ provider "aws" {
 IAM
 ======*/
 
-/*==== groups =====*/
 
-resource "aws_iam_group" "dev_administrator" {
-  name = "development_administrator"
+/*==== instance profile =======*/
+
+resource "aws_iam_instance_profile" "default" {
+  name  = "${var.db_access_type}-default_instance_profile"
+  roles = ["${aws_iam_role.default.name}"]
+}
+
+
+/*==== default role ===========*/
+
+resource "aws_iam_role" "default" {
+  name = "default_instance_profile"
   path = "/"
-}
 
-resource "aws_iam_group" "stage_administrator" {
-  name = "staging_administrator"
-  path = "/"
-}
-
-resource "aws_iam_group" "prod_administrator" {
-  name = "production_administrator"
-  path = "/"
-}
-
-resource "aws_iam_group" "developer" {
-  name = "developer"
-  path = "/"
-}
-
-resource "aws_iam_group" "application" {
-  name = "application"
-  path = "/"
-}
-
-/*==== apps =======*/
-
-# imported
-resource "aws_iam_user" "app" {
-  count = "${length(var.applications)}"
-  name = "${element(var.applications, count.index)}"
-  path = "/"
-}
-
-/*==== devs =======*/
-
-# imported
-resource "aws_iam_user" "dev" {
-  count = "${length(var.developers)}"
-  name = "${element(var.developers, count.index)}"
-  path = "/"
-}
-
-/*==== membership =*/
-
-/* DEVS */
-resource "aws_iam_group_membership" "developers" {
-  name = "engineering-team"
-
-  users = [
-    "${aws_iam_user.dev.*.name}"
-  ]
-
-  group = "${aws_iam_group.developer.name}"
-}
-
-/* APPS */
-resource "aws_iam_group_membership" "applications" {
-  name = "application-services"
-
-  users = [
-    "${aws_iam_user.app.*.name}"
-  ]
-
-  group = "${aws_iam_group.application.name}"
-}
-
-/* ADMINS */
-resource "aws_iam_user_group_membership" "administrator" {
-  count = "${length(var.administrators)}"
-  user = "${element(var.administrators, count.index)}"
-
-  groups = [
-    "${aws_iam_group.dev_administrator.name}",
-    "${aws_iam_group.stage_administrator.name}",
-    "${aws_iam_group.prod_administrator.name}"
-  ]
-}
-
-/*==== policies ===*/
-
-resource "aws_iam_policy" "dev_admin" {
-  name        = "development_administrator_policy"
-  path        = "/"
-  description = "Allows assuming the development administration role on the development account."
-
-  policy = <<EOF
+  assume_role_policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": {
-        "Effect": "Allow",
-        "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::${var.dev_account}:role/administrator"
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com",
+          "autoscaling.amazonaws.com",
+          "codedeploy.amazonaws.com"
+        ]
+      }
     }
-}
-EOF
-}
-
-resource "aws_iam_policy" "stage_admin" {
-  name        = "staging_administrator_policy"
-  path        = "/"
-  description = "Allows assuming the staging administration role on the staging account."
-
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": {
-        "Effect": "Allow",
-        "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::${var.stage_account}:role/administrator"
-    }
-}
-EOF
-}
-
-resource "aws_iam_policy" "prod_admin" {
-  name        = "production_administrator_policy"
-  path        = "/"
-  description = "Allows assuming the production administration role on the production account."
-
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": {
-        "Effect": "Allow",
-        "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::${var.prod_account}:role/administrator"
-    }
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
@@ -148,32 +49,117 @@ EOF
 
 /*==== policy attachments =====*/
 
-# SAMPLE:
-# resource "aws_iam_policy_attachment" "sample" {
-#   name       = "sample_name"
-#   users      = ["${aws_iam_user.user.name}"]
-#   roles      = ["${aws_iam_role.role.name}"]
-#   groups     = ["${aws_iam_group.group.name}"]
-#   policy_arn = "${aws_iam_policy.policy.arn}"
-# }
-
-resource "aws_iam_policy_attachment" "dev_admin" {
-  name       = "dev_admin_group_policy"
-  groups     = ["${aws_iam_group.dev_administrator.name}"]
-  policy_arn = "${aws_iam_policy.dev_admin.arn}"
-}
-
-resource "aws_iam_policy_attachment" "stage_admin" {
-  name       = "stage_admin_group_policy"
-  groups     = ["${aws_iam_group.stage_administrator.name}"]
-  policy_arn = "${aws_iam_policy.stage_admin.arn}"
-}
-
-resource "aws_iam_policy_attachment" "prod_admin" {
-  name       = "prod_admin_group_policy"
-  groups     = ["${aws_iam_group.prod_administrator.name}"]
-  policy_arn = "${aws_iam_policy.prod_admin.arn}"
+resource "aws_iam_role_policy_attachment" "default" {
+  role       = "${aws_iam_role.default.name}"
+  count      = "${length(var.iam_policy_arns)}"
+  policy_arn = "${element(var.iam_policy_arns, count.index)}"
 }
 
 
-/*==== roles ======*/
+
+##------------------ ECS (APPLICATIONS) -------------------##
+
+/*==== service-linked roles ===*/
+
+resource "aws_iam_role" "ecs_service" {
+  name = "ecs_service"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "ecs_task_execution" {
+  name = "ecs_task_execution"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "ecs_autoscaling" {
+  name = "ecs_autoscaling"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "application-autoscaling.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+
+
+##------------------ IAM (DEVELOPERS) ---------------------##
+
+resource "aws_iam_role" "iam_dev" {
+  name = "iam_developer"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "iam.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+
+
+##------------------ IAM (ADMINISTRATORS) -----------------##
+
+resource "aws_iam_role" "iam_admin" {
+  name = "iam_administrator"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "iam.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}

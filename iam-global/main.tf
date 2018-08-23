@@ -111,8 +111,11 @@ resource "aws_iam_user_group_membership" "administrator" {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /*==== roles ======*/
 =======
+=======
+>>>>>>> separate out policies as a file
 /*==== policies ===*/
 
 resource "aws_iam_policy" "dev_admin" {
@@ -409,6 +412,8 @@ EOF
 >>>>>>> add developer policies and attach to group
 >>>>>>> add developer policies and attach to group
 
+=======
+>>>>>>> separate out policies as a file
 /*==== policy attachments =====*/
 
 resource "aws_iam_policy_attachment" "dev_admin" {

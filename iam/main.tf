@@ -7,7 +7,21 @@ provider "aws" {
 }
 
 
+<<<<<<< HEAD
 /*==== IAM ======*/
+=======
+# CALCULATED
+
+# description = "the aws account id for respective environment: development, staging, or production"
+locals  {
+  aws_account_id = "${lookup(var.aws_account_ids, var.environment, 'Not here!')}"
+}
+
+
+/*====
+IAM
+======*/
+>>>>>>> add calculated aws_account_id based on environment
 
 
 /*==== instance profiles =======*/

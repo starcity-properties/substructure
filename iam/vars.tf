@@ -10,6 +10,7 @@ variable "aws_account_ids" {
 }
 
 
+<<<<<<< HEAD
 # CALCULATED
 
 <<<<<<< HEAD
@@ -24,6 +25,8 @@ variable "aws_account_id" {
 
 
 >>>>>>> separate global-iam declarations
+=======
+>>>>>>> remove merge conflicts
 # REQUIRED ENVIRONMENT-SPECIFIC
 
 variable "environment" {
@@ -40,6 +43,7 @@ variable "table_name" {
   description = "the name of the database table"
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 # TODO: move this to its proper place
@@ -62,8 +66,9 @@ variable "iam_policy_arns" {
 variable "table_name" {
   description = "the name of the DynamoDB table"
 =======
+=======
+>>>>>>> remove merge conflicts
 variable "iam_policy_arns" {
   description = "list of policies to be attached to a role"
   type = "list"
->>>>>>> add env -> account-id vars; cleanup
 }

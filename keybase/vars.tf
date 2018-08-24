@@ -24,9 +24,3 @@ variable "keybase_identities" {
   type = "map"
   default = {}
 }
-
-# variable "aws_users" {
-#   description = "list of AWS users to create a mapping of AWS user to keybase.io identity"
-#   type = "list"
-#   default = []
-# }

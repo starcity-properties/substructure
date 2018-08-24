@@ -17,3 +17,7 @@ output "application_iam_user_names" {
 output "developer_iam_user_names" {
   value = ["${aws_iam_user.dev.*.name}"]
 }
+
+output "developer_access_keys" {
+  value = ["${aws_iam_user.dev.*.unique_id}"]
+}

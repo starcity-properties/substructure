@@ -10,14 +10,6 @@ variable "aws_account_ids" {
 }
 
 
-# CALCULATED
-
-variable "aws_account_id" {
-  description = "the aws account id for respective environment: development, staging, or production"
-  default = "${lookup(var.aws_account_ids, var.environment, 'Not here!')}"
-}
-
-
 # REQUIRED ENVIRONMENT-SPECIFIC
 
 variable "environment" {

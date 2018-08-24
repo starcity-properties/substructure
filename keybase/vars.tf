@@ -20,7 +20,7 @@ variable "tfstate_region" {
 # REQUIRED
 
 variable "keybase_identities" {
-  description = "map of AWS user to keybase.io identity"
+  description = "map of AWS user to keybase.io identity, for using pgp key encryption"
   type = "map"
   default = {}
 }

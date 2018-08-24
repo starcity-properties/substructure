@@ -10,17 +10,6 @@ variable "aws_account_ids" {
 }
 
 
-# CALCULATED
-
-<<<<<<< HEAD
-# CALCULATED
-
-variable "aws_account_id" {
-  description = "the aws account id for respective environment: development, staging, or production"
-  default = "${lookup(var.aws_account_ids, var.environment, 'Not here!')}"
-}
-
-
 # REQUIRED ENVIRONMENT-SPECIFIC
 
 variable "environment" {
@@ -35,23 +24,7 @@ variable "table_name" {
   description = "the name of the database table"
 }
 
-<<<<<<< HEAD
-=======
-variable "aws_account_id" {
-  description = "the aws account id for respective environment: development, staging, or production"
-}
-
->>>>>>> separate global-iam declarations
 variable "iam_policy_arns" {
   description = "list of policies to be attached to a role"
   type = "list"
-}
-
-variable "table_name" {
-  description = "the name of the DynamoDB table"
-=======
-variable "iam_policy_arns" {
-  description = "list of policies to be attached to a role"
-  type = "list"
->>>>>>> add env -> account-id vars; cleanup
 }

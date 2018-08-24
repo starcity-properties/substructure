@@ -62,6 +62,7 @@ resource "aws_iam_user" "dev" {
   path = "/"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> separate global-iam declarations
 =======
 <<<<<<< HEAD
@@ -70,8 +71,10 @@ resource "aws_iam_user" "dev" {
 =======
 >>>>>>> separate global-iam declarations
 =======
+=======
+
+>>>>>>> create keybase module for secrets and passwords; update iam-global module accordingly
   force_destroy = true
->>>>>>> add developer policies and attach to group
 }
 
 /*==== membership =*/
@@ -110,6 +113,7 @@ resource "aws_iam_user_group_membership" "administrator" {
   ]
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 /*==== roles ======*/
@@ -414,6 +418,8 @@ EOF
 
 =======
 >>>>>>> separate out policies as a file
+=======
+>>>>>>> create keybase module for secrets and passwords; update iam-global module accordingly
 /*==== policy attachments =====*/
 
 resource "aws_iam_policy_attachment" "dev_admin" {
@@ -434,15 +440,10 @@ resource "aws_iam_policy_attachment" "prod_admin" {
   policy_arn = "${aws_iam_policy.prod_admin.arn}"
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> add developer policies and attach to group
 resource "aws_iam_policy_attachment" "developers_iam" {
   name       = "developers_iam_policy"
   groups     = ["${aws_iam_group.developer.name}"]
   policy_arn = "${aws_iam_policy.password_update.arn}"
-<<<<<<< HEAD
 }
 
 resource "aws_iam_policy_attachment" "developers_view_only" {
@@ -480,6 +481,7 @@ resource "aws_iam_policy_attachment" "administrator" {
 }
 =======
 /*==== roles ======*/
+<<<<<<< HEAD
 =======
 
 /*==== roles ======*/
@@ -536,3 +538,5 @@ resource "aws_iam_user_ssh_key" "user" {
 /*==== roles ======*/
 >>>>>>> add developer policies and attach to group
 >>>>>>> add developer policies and attach to group
+=======
+>>>>>>> create keybase module for secrets and passwords; update iam-global module accordingly

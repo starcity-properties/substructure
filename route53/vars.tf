@@ -17,7 +17,7 @@ variable "tfstate_region" {
 }
 
 
-# ROUTE53
+# REQUIRED
 
 variable "domain_name" {
   description = "This is the name of the hosted zone."
@@ -25,5 +25,6 @@ variable "domain_name" {
 
 variable "name_servers" {
   description = "A list of name servers in associated (or default) delegation set."
-  type        = "list"
+  type = "list"
+  default = []
 }

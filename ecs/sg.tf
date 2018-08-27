@@ -35,13 +35,13 @@ resource "aws_security_group_rule" "ecs_allow_http_egress_inbound" {
 
 
 /*====
-ALB -- security group
+LB -- security group
 ======*/
 
 
 resource "aws_security_group" "web_inbound_sg" {
   name        = "vpc-web-inbound-sg"
-  description = "Allow HTTP from Anywhere into ALB"
+  description = "Allow HTTP from Anywhere into LB"
   vpc_id      = "${data.terraform_remote_state.vpc.vpc_id}"
 
   tags {

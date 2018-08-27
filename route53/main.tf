@@ -9,79 +9,38 @@ provider "aws" {
 
 # ZONES
 
-resource "aws_route53_zone" "primary" {
+resource "aws_route53_zone" "selected" {
   name = "${var.domain_name}"
 
-  tags {
-    Environment = "production"
-  }
-}
-
-resource "aws_route53_zone" "stage" {
-  name       = "staging.${var.domain_name}"
-  vpc_region = "${var.aws_region}"
-  vpc_id     = "${data.terraform_remote_state.vpc.vpc_id}"
-
   force_destroy = true
 
   tags {
-    Environment = "staging"
-  }
-}
-
-resource "aws_route53_zone" "dev" {
-  name       = "dev.${var.domain_name}"
-  vpc_region = "${var.aws_region}"
-  vpc_id     = "${data.terraform_remote_state.vpc.vpc_id}"
-
-  force_destroy = true
-
-  tags {
-    Environment = "development"
+    Environment = "${var.environment}"
   }
 }
 
 
 # RECORDS
 
-resource "aws_route53_record" "stage_ns" {
-  zone_id = "${aws_route53_zone.stage.zone_id}"
-  name    = "staging.${var.domain_name}"
+resource "aws_route53_record" "ns" {
+  name    = "${aws_route53_zone.selected.name}"
+  zone_id = "${aws_route53_zone.selected.zone_id}"
   type    = "NS"
-  ttl     = "30"
+  ttl     = "300"
 
   records = [
-    "${aws_route53_zone.stage.name_servers.0}",
-    "${aws_route53_zone.stage.name_servers.1}",
-    "${aws_route53_zone.stage.name_servers.2}",
-    "${aws_route53_zone.stage.name_servers.3}",
+    "${aws_route53_zone.selected.name_servers.0}",
+    "${aws_route53_zone.selected.name_servers.1}",
+    "${aws_route53_zone.selected.name_servers.2}",
+    "${aws_route53_zone.selected.name_servers.3}",
   ]
 }
 
-resource "aws_route53_record" "dev_ns" {
-  zone_id = "${aws_route53_zone.dev.zone_id}"
-  name    = "dev.${var.domain_name}"
-  type    = "NS"
-  ttl     = "30"
+resource "aws_route53_record" "www" {
+  name    = "www.${aws_route53_zone.selected.name}"
+  zone_id = "${aws_route53_zone.selected.zone_id}"
+  type    = "A"
+  ttl     = "300"
 
-  records = [
-    "${aws_route53_zone.dev.name_servers.0}",
-    "${aws_route53_zone.dev.name_servers.1}",
-    "${aws_route53_zone.dev.name_servers.2}",
-    "${aws_route53_zone.dev.name_servers.3}",
-  ]
-}
-
-resource "aws_route53_record" "cault" {
-  zone_id = "${aws_route53_zone.dev.zone_id}"
-  name    = "cault.${var.domain_name}"
-  type    = "NS"
-  ttl     = "30"
-
-  records = [
-    "${aws_route53_zone.dev.name_servers.0}",
-    "${aws_route53_zone.dev.name_servers.1}",
-    "${aws_route53_zone.dev.name_servers.2}",
-    "${aws_route53_zone.dev.name_servers.3}",
-  ]
+  records = ["10.0.0.1"]
 }

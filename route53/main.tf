@@ -34,6 +34,12 @@ resource "aws_route53_record" "ns" {
     "${aws_route53_zone.selected.name_servers.2}",
     "${aws_route53_zone.selected.name_servers.3}",
   ]
+
+  alias {
+    name                   = "${aws_elb.main.dns_name}"
+    zone_id                = "${aws_elb.main.zone_id}"
+    evaluate_target_health = true
+  }
 }
 
 resource "aws_route53_record" "www" {
@@ -42,5 +48,8 @@ resource "aws_route53_record" "www" {
   type    = "A"
   ttl     = "300"
 
-  records = ["10.0.0.1"]
+  records = [
+    "54.69.58.12",
+    "54.149.238.10"
+  ]
 }

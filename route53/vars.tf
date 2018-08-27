@@ -8,6 +8,10 @@ variable "vpc_remote_state_key" {
   description = "key of the vpc remote state within `tfstate_bucket`"
 }
 
+variable "ecs_remote_state_key" {
+  description = "key of the ecs remote state within `tfstate_bucket`"
+}
+
 variable "tfstate_bucket" {
   description = "bucket to find the remote terraform state"
 }

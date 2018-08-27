@@ -70,10 +70,10 @@ resource "aws_ecs_service" "web_service" {
   }
 
   load_balancer {
-    target_group_arn = "${aws_alb_target_group.alb_target_group.arn}"
+    target_group_arn = "${aws_lb_target_group.lb_target_group.arn}"
     container_name   = "web"
     container_port   = "8080"
   }
 
-  depends_on = ["aws_alb_target_group.alb_target_group"]
+  depends_on = ["aws_lb_target_group.lb_target_group"]
 }

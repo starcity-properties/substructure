@@ -19,12 +19,16 @@ variable "tfstate_region" {
 
 # REQUIRED
 
-variable "domain_name" {
-  description = "This is the name of the hosted zone."
+variable "environment" {
+  description = "environment, or aws account"
 }
 
-variable "name_servers" {
-  description = "A list of name servers in associated (or default) delegation set."
+variable "domain_name" {
+  description = "the registered domain name"
+}
+
+variable "route53_sub_domains" {
+  description = "a list of subdomains to be created in this environment"
   type = "list"
   default = []
 }

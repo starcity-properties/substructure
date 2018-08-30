@@ -1,5 +1,12 @@
 /*==== policies ===*/
 
+locals {
+  dev_account = "${lookup(var.aws_account_ids, "development")}"
+  stage_account = "${lookup(var.aws_account_ids, "staging")}"
+  prod_account = "${lookup(var.aws_account_ids, "production")}"
+}
+
+
 resource "aws_iam_policy" "dev_admin" {
   name        = "development_administrator_policy"
   path        = "/"
@@ -11,7 +18,7 @@ resource "aws_iam_policy" "dev_admin" {
     "Statement": {
         "Effect": "Allow",
         "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::${var.dev_account}:role/administrator"
+        "Resource": "arn:aws:iam::${local.dev_account}:role/administrator"
     }
 }
 EOF
@@ -28,7 +35,7 @@ resource "aws_iam_policy" "stage_admin" {
     "Statement": {
         "Effect": "Allow",
         "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::${var.stage_account}:role/administrator"
+        "Resource": "arn:aws:iam::${local.stage_account}:role/administrator"
     }
 }
 EOF
@@ -45,12 +52,13 @@ resource "aws_iam_policy" "prod_admin" {
     "Statement": {
         "Effect": "Allow",
         "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::${var.prod_account}:role/administrator"
+        "Resource": "arn:aws:iam::${local.prod_account}:role/administrator"
     }
 }
 EOF
 }
 
+# each developer can update their password
 resource "aws_iam_policy" "password_update" {
   name        = "password_update"
   path        = "/"
@@ -81,6 +89,7 @@ resource "aws_iam_policy" "password_update" {
 EOF
 }
 
+# each developer can start off with full view access
 resource "aws_iam_policy" "view_only_full_access" {
   name        = "view_only_full_access"
   path        = "/"

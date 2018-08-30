@@ -1,26 +1,6 @@
 /*================ policies by AWS Service ==================*/
 
 
-resource "aws_iam_policy" "aws_full_access" {
-  name        = "aws_full_access"
-  path        = "/"
-  description = "Allows full access to AWS."
-
-policy = <<EOF
-{
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "*",
-            "Resource": "*"
-        }
-  ],
-  "Version": "2012-10-17"
-}
-EOF
-}
-
-
 /*===
 IAM
 ===*/

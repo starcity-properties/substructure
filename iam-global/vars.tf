@@ -4,33 +4,25 @@ variable "aws_region" {
   description = "aws region"
 }
 
+variable "aws_account_ids" {
+  description = "aws account id's for all environments"
+  type = "map"
+}
 
 
 # REQUIRED GLOBAL
 
 variable "applications" {
-  type = "list"
-  default = []
-}
-
-variable "developers" {
-  type = "list"
-  default = []
+  type = "map"
+  default = {}
 }
 
 variable "administrators" {
-  type = "list"
-  default = []
+  type = "map"
+  default = {}
 }
 
-variable "dev_account" {
-  description = "number associated with aws development account (role)"
-}
-
-variable "stage_account" {
-  description = "number associated with aws staging account (role)"
-}
-
-variable "prod_account" {
-  description = "number associated with aws production account (role)"
+variable "developers" {
+  type = "map"
+  default = {}
 }

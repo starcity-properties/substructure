@@ -16,15 +16,19 @@ variable "environment" {
   description = "environment, or aws account"
 }
 
+# TODO: move this to its proper place
 variable "db_access_type" {
-  description = "one of `app` (backend service) or `web` to express type of resource requiring access to database"
+  description = "type of resource requiring db access: one of `app` (backend service) or `web` (web application)"
 }
 
+# TODO: move this to its proper place
 variable "table_name" {
   description = "the name of the database table"
 }
 
+# TODO: move this to its proper place
 variable "iam_policy_arns" {
-  description = "list of policies to be attached to a role"
+  description = "list of policies to be attached to a role for a backend service or web application"
   type = "list"
+  default = []
 }

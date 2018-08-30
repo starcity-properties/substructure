@@ -140,26 +140,3 @@ resource "aws_iam_role" "iam_dev" {
 }
 EOF
 }
-
-
-
-##------------------ IAM (ADMINISTRATORS) -----------------##
-
-resource "aws_iam_role" "iam_admin" {
-  name = "iam_administrator"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "iam.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}

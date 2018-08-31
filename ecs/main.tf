@@ -12,7 +12,7 @@ ECS cluster
 ======*/
 
 resource "aws_ecs_cluster" "fargate" {
-  name = "fargate"
+  name = "${var.repository_name}-fargate"
 }
 
 
@@ -44,7 +44,7 @@ data "template_file" "web_task" {
   template = "${file("${path.module}/tasks/web_task_definition.json")}"
 
   vars {
-    image      = "${aws_ecr_repository.clj_app.repository_url}"
+    image      = "${data.terraform_remote_state.ecr.repository_url}"
     aws_region = "${var.aws_region}"
     log_group  = "${aws_cloudwatch_log_group.clj_app.name}"
   }
@@ -60,10 +60,10 @@ resource "aws_ecs_service" "web_service" {
   depends_on      = ["aws_iam_role_policy.ecs_service_role_policy"]
 
   network_configuration {
-    subnets          = ["${data.terraform_remote_state.vpc.public_subnets}"]
+    subnets          = ["${data.terraform_remote_state.vpc.public_subnet_ids}"]
     security_groups  = [
-      "${data.terraform_remote_state.vpc.default_group_id}",
-      "${aws_security_group.ecs_service.id}"
+      "${data.terraform_remote_state.vpc.web_inbound_id}",
+      "${data.terraform_remote_state.vpc.internal_inbound_id}"
     ]
 
     assign_public_ip = true

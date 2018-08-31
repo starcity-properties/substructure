@@ -6,7 +6,7 @@ resource "aws_appautoscaling_target" "target" {
   service_namespace  = "ecs"
   resource_id        = "service/${aws_ecs_cluster.fargate.name}/${aws_ecs_service.web_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
-  role_arn           = "${aws_iam_role.ecs_autoscale_role.arn}"
+  role_arn           = "${data.terraform_remote_state.iam.ecs_autoscaling_role}"
   min_capacity       = 2
   max_capacity       = 4
 }

@@ -16,7 +16,7 @@ IAM
 
 resource "aws_iam_instance_profile" "default" {
   name  = "${var.db_access_type}-default_instance_profile"
-  roles = ["${aws_iam_role.default.name}"]
+  role = "${aws_iam_role.default.name}"
 }
 
 
@@ -80,8 +80,27 @@ resource "aws_iam_role" "ecs_service" {
 EOF
 }
 
-resource "aws_iam_role" "ecs_task_execution" {
-  name = "ecs_task_execution"
+resource "aws_iam_role" "ecs_execution" {
+  name = "ecs_execution"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "ecs_task" {
+  name = "ecs_task"
 
   assume_role_policy = <<EOF
 {
@@ -117,7 +136,6 @@ resource "aws_iam_role" "ecs_autoscaling" {
 }
 EOF
 }
-
 
 
 ##------------------ IAM (DEVELOPERS) ---------------------##

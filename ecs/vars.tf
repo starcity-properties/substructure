@@ -16,6 +16,10 @@ variable "ecr_remote_state_key" {
   description = "key of the ecr remote state within `tfstate_bucket`"
 }
 
+variable "iam_remote_state_key" {
+  description = "key of the iam remote state within `tfstate_bucket`"
+}
+
 variable "tfstate_bucket" {
   description = "bucket to find the remote terraform state"
 }

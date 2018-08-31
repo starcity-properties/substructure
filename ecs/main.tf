@@ -35,8 +35,8 @@ resource "aws_ecs_task_definition" "web_service" {
   network_mode             = "awsvpc"
   cpu                      = 256
   memory                   = 512
-  execution_role_arn       = "${aws_iam_role.ecs_execution_role.arn}"
-  task_role_arn            = "${aws_iam_role.ecs_execution_role.arn}"
+  execution_role_arn       = "${data.terraform_remote_state.iam.ecs_execution_role.arn}"
+  task_role_arn            = "${data.terraform_remote_state.iam.ecs_task_role.arn}"
 }
 
 
@@ -57,7 +57,6 @@ resource "aws_ecs_service" "web_service" {
   desired_count   = 2
   launch_type     = "FARGATE"
   cluster         = "${aws_ecs_cluster.fargate.id}"
-  depends_on      = ["aws_iam_role_policy.ecs_service_role_policy"]
 
   network_configuration {
     subnets          = ["${data.terraform_remote_state.vpc.public_subnet_ids}"]

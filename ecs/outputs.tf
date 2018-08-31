@@ -11,9 +11,9 @@ output "security_group_id" {
 }
 
 output "lb_dns_name" {
-  value = "${aws_lb.lb_clj_app.dns_name}"
+  value = "${aws_lb.app.dns_name}"
 }
 
 output "lb_zone_id" {
-  value = "${aws_lb.lb_clj_app.zone_id}"
+  value = "${aws_lb.app.zone_id}"
 }

@@ -24,11 +24,6 @@ variable "tfstate_region" {
 
 
 
-
-variable "ami" {
-  description = "ami to use for transactor instance"
-}
-
 variable "protocol" {
   description = "storage protocol to use"
   default     = "ddb"
@@ -72,7 +67,7 @@ variable "transactor_xmx" {
   description = "max transactor memory consumption"
 }
 
-variable "datomic_license" {
+variable "license_key" {
   description = "license for datomic pro"
 }
 
@@ -94,6 +89,7 @@ variable "partition" {
 
 variable "key_name" {
   description = "name of the ec2 keypair to use"
+  default = "datomic"
 }
 
 variable "dynamodb_table" {

@@ -1,28 +1,25 @@
 [
-  {
-    "name": "web",
-    "image": "${image}",
-    "portMappings": [
-      {
-        "containerPort": 8080,
-        "hostPort": 8080,
-        "protocol": "tcp"
-      },
-      {
-        "containerPort": 22,
-        "hostPort": 22,
-        "protocol": "tcp"
-      }
-    ],
-    "networkMode": "awsvpc",
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "${log_group}",
-        "awslogs-region": "${aws_region}",
-        "awslogs-stream-prefix": "web"
-      }
-    },
-    "environment": []
-  }
+    {
+        "name": "${name}",
+        "image": "${image}",
+        "cpu": ${cpu},
+        "memory": ${memory},
+        "portMappings": [
+            {
+                "containerPort": ${container_port},
+                "hostPort": ${host_port},
+                "protocol": "${protocol}"
+            }
+        ],
+        "networkMode": "awsvpc",
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "${log_group}",
+                "awslogs-region": "${aws_region}",
+                "awslogs-stream-prefix": "${prefix}"
+            }
+        },
+        "environment": []
+    }
 ]

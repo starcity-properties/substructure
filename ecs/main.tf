@@ -43,6 +43,14 @@ data "template_file" "web_task" {
     aws_region = "${var.aws_region}"
     log_group  = "${aws_cloudwatch_log_group.app.name}"
     prefix     = "${var.db_access_type}"
+
+    tipe_org_secret = "${var.tipe_org_secret}"
+    tipe_api_key = "${var.tipe_api_key}"
+    slack_client_id = "${var.slack_client_id}"
+    slack_client_secret = "${var.slack_client_secret}"
+    slack_webhook = "${var.slack_webhook}"
+    slack_token = "${var.slack_token}"
+    datomic_uri = "${var.datomic_uri}"
   }
 }
 

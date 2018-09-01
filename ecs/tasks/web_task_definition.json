@@ -20,6 +20,27 @@
                 "awslogs-stream-prefix": "${prefix}"
             }
         },
-        "environment": []
+        "environment": [
+            {"name": "TIPE_ORG_SECRET",
+             "value": "${tipe_org_secret}"
+            },{
+                "name": "TIPE_API_KEY",
+                "value": "${tipe_api_key}"
+            },{
+                "name": "SLACK_CLIENT_ID",
+                "value": "${slack_client_id}"
+            },{
+                "name": "SLACK_CLIENT_SECRET",
+                "value": "${slack_client_secret}"
+            },{
+                "name": "SLACK_WEBHOOK",
+                "value": "${slack_webhook}"
+            },{
+                "name": "SLACK_TOKEN",
+                "value": "${slack_token}"
+            },{
+                "name": "DATOMIC_URI",
+                "value": "${datomic_uri}"}
+        ]
     }
 ]

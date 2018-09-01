@@ -62,3 +62,27 @@ variable "container_port" {
 variable "host_port" {
   description = "host port"
 }
+
+
+# SECRETS
+
+variable "tipe_org_secret" {
+}
+
+variable "tipe_api_key" {
+}
+
+variable "slack_client_id" {
+}
+
+variable "slack_client_secret" {
+}
+
+variable "slack_webhook" {
+}
+
+variable "slack_token" {
+}
+
+variable "datomic_uri" {
+}

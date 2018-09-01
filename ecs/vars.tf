@@ -35,12 +35,30 @@ variable "repository_name" {
   description = "The repository that holds our Docker images."
 }
 
+variable "db_access_type" {
+  description = "TODO"
+}
+
+variable "desired_count" {
+  description = "TODO"
+}
+
 variable "cpu" {
   description = "cpu power"
-  default = 256
 }
 
 variable "memory" {
   description = "memory allocation"
-  default = 512
+}
+
+variable "protocol" {
+  description = "port mapping protocol"
+}
+
+variable "container_port" {
+  description = "container port"
+}
+
+variable "host_port" {
+  description = "host port"
 }

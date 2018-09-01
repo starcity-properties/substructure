@@ -55,6 +55,25 @@ resource "aws_iam_role_policy_attachment" "default" {
   policy_arn = "${element(var.iam_policy_arns, count.index)}"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_service" {
+  role       = "${aws_iam_role.ecs_service.name}"
+  policy_arn = "${aws_iam_policy.ecs_service.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution" {
+  role       = "${aws_iam_role.ecs_execution.name}"
+  policy_arn = "${aws_iam_policy.ecs_execution.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task" {
+  role       = "${aws_iam_role.ecs_task.name}"
+  policy_arn = "${aws_iam_policy.ecs_task.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_autoscaling" {
+  role       = "${aws_iam_role.ecs_autoscaling.name}"
+  policy_arn = "${aws_iam_policy.ecs_autoscaling.arn}"
+}
 
 
 ##------------------ ECS (APPLICATIONS) -------------------##

@@ -209,21 +209,52 @@ EOF
 resource "aws_iam_policy" "ecs_execution" {
   name        = "ecs_execution"
   path        = "/"
-  description = "Allow access to ECR and CloudWatch for ECS task execution."
+  description = "Allow ECS container agent and the Docker daemon to assume role."
 
   policy = <<EOF
 {
   "Statement": [
     {
-      "Sid": "ECSTaskExecution",
+      "Sid": "ECSExecution",
       "Effect": "Allow",
       "Action": [
         "ecr:GetAuthorizationToken",
         "ecr:BatchCheckLayerAvailability",
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
+        "logs:CreateLogGroup",
         "logs:CreateLogStream",
-        "logs:PutLogEvents"
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
+      ],
+      "Resource": "*"
+    }
+  ],
+  "Version": "2012-10-17"
+}
+EOF
+}
+
+resource "aws_iam_policy" "ecs_task" {
+  name        = "ecs_task"
+  path        = "/"
+  description = "Allow ECS container task to make calls to other AWS services."
+
+  policy = <<EOF
+{
+  "Statement": [
+    {
+      "Sid": "ECSTask",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
       ],
       "Resource": "*"
     }

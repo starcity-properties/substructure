@@ -1,6 +1,25 @@
+terraform {
+  backend "s3" {}
+}
+
+provider "aws" {
+  region = "${var.aws_region}"
+}
+
+
 /*====
 Datomic transactor (x1)
 ======*/
+
+data "aws_ami" "datomic_transactor" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["datomic-0.9.5544-star-development"]
+  }
+}
+
 
 
 # s3 bucket for the transactor logs
@@ -17,7 +36,7 @@ resource "aws_s3_bucket" "transactor_logs" {
 # instance profile which assumes the transactor role
 resource "aws_iam_instance_profile" "transactor" {
   name = "${var.transactor_name}-dtx-transactor"
-  role = "${aws_iam_role.transactor.name}"
+  role = "${aws_iam_role.datomic_transactor.name}"
 }
 
 
@@ -25,7 +44,7 @@ resource "aws_iam_instance_profile" "transactor" {
 resource "aws_launch_configuration" "datomic_transactor" {
   name_prefix          = "dtx-"
 
-  image_id             = "${var.ami}"
+  image_id             = "${data.aws_ami.datomic_transactor.image_id}"
   instance_type        = "${var.transactor_instance_type}"
   iam_instance_profile = "${aws_iam_instance_profile.datomic_transactor.name}"
 
@@ -59,7 +78,7 @@ data "template_file" "transactor_user_data" {
     s3_log_bucket          = "${aws_s3_bucket.transactor_logs.id}"
     memory_index_threshold = "${var.transactor_memory_index_threshold}"
     object_cache_max       = "${var.transactor_object_cache_max}"
-    license_key            = "${var.datomic_license}"
+    license_key            = "${var.license_key}"
     cloudwatch_dimension   = "${var.cloudwatch_dimension}"
     partition              = "${var.partition}"
     protocol               = "${var.protocol}"
@@ -77,7 +96,7 @@ resource "aws_autoscaling_group" "datomic_asg" {
   min_size             = "${var.instance_count}"
   launch_configuration = "${aws_launch_configuration.datomic_transactor.name}"
 
-  vpc_zone_identifier = ["${data.terraform_remote_state.vpc.private_subnets}"]
+  vpc_zone_identifier = ["${data.terraform_remote_state.vpc.private_subnet_ids}"]
 
   tag {
     key                 = "Name"

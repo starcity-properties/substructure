@@ -25,7 +25,7 @@ EOF
 
 # instance profile which assumes the transactor role
 resource "aws_iam_instance_profile" "datomic_transactor" {
-  name = "datomic-transactor-profile"
+  name = "dtx"
   role = "${aws_iam_role.datomic_transactor.name}"
 }
 
@@ -101,4 +101,3 @@ resource "aws_iam_role_policy" "transactor_logs" {
 }
 EOF
 }
-

@@ -62,6 +62,10 @@ output "casbah_outbound_id" {
   value = "${aws_security_group.casbah_outbound.id}"
 }
 
+output "datomic_inbound_id" {
+  value = "${aws_security_group.datomic_inbound.id}"
+}
+
 output "web_inbound_id" {
   value = "${aws_security_group.web_inbound.id}"
 }

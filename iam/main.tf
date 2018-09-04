@@ -23,7 +23,7 @@ resource "aws_iam_instance_profile" "default" {
 /*==== default role ===========*/
 
 resource "aws_iam_role" "default" {
-  name = "default_instance_profile"
+  name = "default"
   path = "/"
 
   assume_role_policy = <<EOF
@@ -46,8 +46,37 @@ resource "aws_iam_role" "default" {
 EOF
 }
 
+# TODO: understand how to differentiate roles
+resource "aws_iam_role" "datomic_peer" {
+  name = "datomic_peer"
+  path = "/"
+
+  assume_role_policy = <<EOF
+{
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com",
+          "autoscaling.amazonaws.com",
+          "codedeploy.amazonaws.com"
+        ]
+      }
+    }
+  ],
+  "Version": "2012-10-17"
+}
+EOF
+}
 
 /*==== policy attachments =====*/
+
+resource "aws_iam_role_policy_attachment" "datomic_peer" {
+  role       = "${aws_iam_role.datomic_peer.name}"
+  policy_arn = "${aws_iam_policy.dynamo_read.arn}"
+}
 
 resource "aws_iam_role_policy_attachment" "default" {
   role       = "${aws_iam_role.default.name}"

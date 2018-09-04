@@ -21,3 +21,7 @@ output "ecs_execution_role_id" {
 output "ecs_task_policy" {
   value = "${aws_iam_policy.ecs_task.arn}"
 }
+
+output "datomic_peer_role" {
+  value = "${aws_iam_role.datomic_peer.name}"
+}

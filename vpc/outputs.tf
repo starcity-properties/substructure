@@ -54,14 +54,18 @@ output "bastion_outbound_id" {
   value = "${aws_security_group.bastion_outbound.id}"
 }
 
+output "casbah_inbound_id" {
+  value = "${aws_security_group.casbah_inbound.id}"
+}
+
+output "casbah_outbound_id" {
+  value = "${aws_security_group.casbah_outbound.id}"
+}
+
 output "web_inbound_id" {
   value = "${aws_security_group.web_inbound.id}"
 }
 
 output "internal_inbound_id" {
   value = "${aws_security_group.internal_inbound.id}"
-}
-
-output "default_group_id" {
-  value = "${aws_security_group.default.id}"
 }

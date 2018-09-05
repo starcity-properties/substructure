@@ -66,6 +66,10 @@ output "datomic_inbound_id" {
   value = "${aws_security_group.datomic_inbound.id}"
 }
 
+output "http_outbound_id" {
+  value = "${aws_security_group.http_outbound.id}"
+}
+
 output "web_inbound_id" {
   value = "${aws_security_group.web_inbound.id}"
 }

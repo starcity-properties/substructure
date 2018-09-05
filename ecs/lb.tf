@@ -19,13 +19,14 @@ resource "aws_lb" "app" {
   }
 }
 
+
 /* helper */
 resource "random_id" "target_group_suffix" {
   byte_length = 2
 }
 
 resource "aws_lb_target_group" "app" {
-  name        = "${var.repository_name}-${random_id.target_group_suffix.hex}"
+  name = "${var.repository_name}-${random_id.target_group_suffix.hex}"
 
   port        = 80
   protocol    = "HTTP"
@@ -39,12 +40,18 @@ resource "aws_lb_target_group" "app" {
   }
 }
 
+
+/* data */
+data "aws_acm_certificate" "web" {
+  domain   = "gostarcity.com"
+  types = ["AMAZON_ISSUED"]
+  most_recent = true
+}
+
 resource "aws_lb_listener" "app" {
   load_balancer_arn = "${aws_lb.app.arn}"
   port              = 80
   protocol          = "HTTP"
-  # ssl_policy        = "ELBSecurityPolicy-2015-05"
-  # certificate_arn   = "arn:aws:iam::187416307283:server-certificate/test_cert_rab3wuqwgja25ct3n4jdj2tzu4"
 
   depends_on = ["aws_lb_target_group.app"]
 

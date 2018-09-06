@@ -33,6 +33,9 @@
                 "name": "SLACK_CLIENT_SECRET",
                 "value": "${slack_client_secret}"
             },{
+                "name": "SLACK_API_URL",
+                "value": "${slack_api_url}"
+            },{
                 "name": "SLACK_WEBHOOK",
                 "value": "${slack_webhook}"
             },{

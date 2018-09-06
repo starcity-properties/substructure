@@ -78,6 +78,9 @@ variable "slack_client_id" {
 variable "slack_client_secret" {
 }
 
+variable "slack_api_url" {
+}
+
 variable "slack_webhook" {
 }
 

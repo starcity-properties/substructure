@@ -48,6 +48,7 @@ data "template_file" "web_task" {
     tipe_api_key = "${var.tipe_api_key}"
     slack_client_id = "${var.slack_client_id}"
     slack_client_secret = "${var.slack_client_secret}"
+    slack_api_url = "${var.slack_api_url}"
     slack_webhook = "${var.slack_webhook}"
     slack_token = "${var.slack_token}"
     datomic_uri = "${var.datomic_uri}"

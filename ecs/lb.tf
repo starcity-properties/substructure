@@ -41,17 +41,12 @@ resource "aws_lb_target_group" "app" {
 }
 
 
-/* data */
-data "aws_acm_certificate" "web" {
-  domain   = "gostarcity.com"
-  types = ["AMAZON_ISSUED"]
-  most_recent = true
-}
-
 resource "aws_lb_listener" "app" {
   load_balancer_arn = "${aws_lb.app.arn}"
-  port              = 80
-  protocol          = "HTTP"
+  port              = 443
+  protocol          = "HTTPS"
+
+  certificate_arn = "${aws_acm_certificate.domain.arn}"
 
   depends_on = ["aws_lb_target_group.app"]
 
@@ -59,4 +54,17 @@ resource "aws_lb_listener" "app" {
     target_group_arn = "${aws_lb_target_group.app.arn}"
     type             = "forward"
   }
+}
+
+
+/* this will generate an email, must be manually validated */
+
+resource "aws_acm_certificate" "domain" {
+  domain_name = "gostarcity.com"
+  validation_method = "EMAIL"
+}
+
+resource "aws_acm_certificate" "www" {
+  domain_name = "*.gostarcity.com"
+  validation_method = "EMAIL"
 }

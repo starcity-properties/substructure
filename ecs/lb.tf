@@ -14,6 +14,10 @@ resource "aws_lb" "app" {
     "${data.terraform_remote_state.vpc.internal_inbound_id}"
   ]
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags {
     Environment = "${var.environment}"
   }
@@ -41,12 +45,13 @@ resource "aws_lb_target_group" "app" {
 }
 
 
-resource "aws_lb_listener" "app" {
+resource "aws_lb_listener" "app_https" {
   load_balancer_arn = "${aws_lb.app.arn}"
   port              = 443
   protocol          = "HTTPS"
 
-  certificate_arn = "${aws_acm_certificate.domain.arn}"
+  ssl_policy      = "ELBSecurityPolicy-2015-05"
+  certificate_arn = "${data.aws_acm_certificate.domain.arn}"
 
   depends_on = ["aws_lb_target_group.app"]
 
@@ -57,14 +62,17 @@ resource "aws_lb_listener" "app" {
 }
 
 
-/* this will generate an email, must be manually validated */
+resource "aws_lb_listener" "app_http" {
+  load_balancer_arn = "${aws_lb.app.arn}"
+  port              = 80
+  protocol          = "HTTP"
 
-resource "aws_acm_certificate" "domain" {
-  domain_name = "gostarcity.com"
-  validation_method = "EMAIL"
-}
-
-resource "aws_acm_certificate" "www" {
-  domain_name = "*.gostarcity.com"
-  validation_method = "EMAIL"
+  default_action {
+    type = "redirect"
+    redirect {
+      port = "443"
+      protocol = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
 }

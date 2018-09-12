@@ -53,7 +53,7 @@ Now that you have your TLS certs, check out the next section for how to use them
 
 
 
-### Distributing TLS certs to your servers
+### Distributing TLS certs to your servers.
 
 Distribute the private and public keys (the files at `private_key_file_path` and `public_key_file_path`) to the servers that will use them to handle TLS connections (e.g. Vault). For example, to run Vault with the [run-vault module](https://github.com/hashicorp/terraform-aws-vault/tree/master/modules/run-vault), you need to pass it the TLS certs: 
 
@@ -69,7 +69,7 @@ We **strongly** recommend encrypting the private key file while it's in transit 
 
 
 
-### Distributing TLS certs to your clients   
+### Distributing TLS certs to your clients.
    
 Distribute the CA public key (the file at `ca_public_key_file_path`) to any clients of those services so they can validate the server's TLS cert. Without the CA public key, the clients will reject any TLS connections: 
 

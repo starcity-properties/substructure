@@ -25,3 +25,11 @@ output "ecs_task_policy" {
 output "datomic_peer_role" {
   value = "${aws_iam_role.datomic_peer.name}"
 }
+
+output "consul_vault_profile" {
+  value = "${aws_iam_instance_profile.cault.name}"
+}
+
+output "consul_vault_role" {
+  value = "${aws_iam_role.cault.name}"
+}

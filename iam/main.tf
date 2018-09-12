@@ -12,13 +12,40 @@ IAM
 ======*/
 
 
-/*==== instance profile =======*/
+/*==== instance profiles =======*/
 
 resource "aws_iam_instance_profile" "default" {
   name  = "${var.db_access_type}-default_instance_profile"
   role = "${aws_iam_role.default.name}"
 }
 
+resource "aws_iam_instance_profile" "cault" {
+  name  = "cault_instance_profile"
+  role = "${aws_iam_role.cault.name}"
+}
+
+resource "aws_iam_role" "cault" {
+  name = "consul-vault"
+
+  assume_role_policy = <<EOF
+{
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com",
+          "autoscaling.amazonaws.com"
+        ]
+      },
+      "Sid": ""
+    }
+  ],
+  "Version": "2012-10-17"
+}
+EOF
+}
 
 /*==== default role ===========*/
 
@@ -73,11 +100,6 @@ EOF
 
 /*==== policy attachments =====*/
 
-resource "aws_iam_role_policy_attachment" "datomic_peer" {
-  role       = "${aws_iam_role.datomic_peer.name}"
-  policy_arn = "${aws_iam_policy.dynamo_read.arn}"
-}
-
 resource "aws_iam_role_policy_attachment" "default" {
   role       = "${aws_iam_role.default.name}"
   count      = "${length(var.iam_policy_arns)}"
@@ -102,6 +124,16 @@ resource "aws_iam_role_policy_attachment" "ecs_task" {
 resource "aws_iam_role_policy_attachment" "ecs_autoscaling" {
   role       = "${aws_iam_role.ecs_autoscaling.name}"
   policy_arn = "${aws_iam_policy.ecs_autoscaling.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "datomic_peer" {
+  role       = "${aws_iam_role.datomic_peer.name}"
+  policy_arn = "${aws_iam_policy.dynamo_read.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "cault_s3" {
+  role       = "${aws_iam_role.cault.name}"
+  policy_arn = "${aws_iam_policy.s3_full_access.arn}"
 }
 
 

@@ -7,18 +7,14 @@ provider "aws" {
 }
 
 
-/*====
-ECS cluster
-======*/
+/* ==== ECS cluster ====== */
 
 resource "aws_ecs_cluster" "fargate" {
   name = "${var.repository_name}-fargate"
 }
 
 
-/*====
-ECS task definitions
-======*/
+/* ==== ECS task definitions ====== */
 
 data "aws_ecs_task_definition" "service" {
   depends_on = ["aws_ecs_task_definition.service"]
@@ -71,9 +67,7 @@ resource "aws_ecs_task_definition" "service" {
 }
 
 
-/*====
-ECS services
-======*/
+/* ==== ECS services ====== */
 
 resource "aws_ecs_service" "service" {
   name = "${var.db_access_type}-service"

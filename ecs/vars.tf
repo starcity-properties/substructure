@@ -64,6 +64,7 @@ variable "host_port" {
 }
 
 
+# TODO: this should be a map of secrets so that each service has its own
 # SECRETS
 
 variable "tipe_org_secret" {

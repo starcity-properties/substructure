@@ -22,6 +22,6 @@ phases:
       - echo $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
       - printf '[{"name":"web","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-      - aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition web --network-configuration "awsvpcConfiguration={subnets=[${subnet_ids}],securityGroups=[${security_group_ids}]}"
+      - aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition web --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${security_groups}]}"
 artifacts:
   files: imagedefinitions.json

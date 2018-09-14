@@ -1,32 +1,11 @@
-# setup
+/* CodePipeline */
 
-terraform {
-  backend "s3" {}
-}
-
-provider "aws" {
-  region = "${var.aws_region}"
-}
-
-
-# s3 bucket
-resource "aws_s3_bucket" "source" {
-  bucket = "starcity-development-codepipeline-source"
-}
-
-
-
-
-/*
-/* CodePipeline
-*/
-
-resource "aws_codepipeline" "clj_app" {
-  name     = "clj-app"
-  role_arn = "${aws_iam_role.codepipeline_role.arn}"
+resource "aws_codepipeline" "app" {
+  name     = "app"
+  role_arn = "${data.terraform_remote_state.iam.codepipeline_role}"
 
   artifact_store {
-    location = "${aws_s3_bucket.source.bucket}"
+    location = "${data.terraform_remote_state.iam.source_bucket}"
     type     = "S3"
   }
 
@@ -42,10 +21,10 @@ resource "aws_codepipeline" "clj_app" {
       output_artifacts = ["source"]
 
       configuration {
-        Owner      = "tdiede"
-        Repo       = "cornerstone"
-        Branch     = "master"
-        OAuthToken = "3ce8fb881ffbac80cc73800c158eb9e542838320"
+        Owner      = "${var.github_owner}"
+        Repo       = "${var.github_repo}"
+        Branch     = "${var.github_branch}"
+        OAuthToken = "${var.github_oauth_token}"
       }
     }
   }
@@ -63,7 +42,7 @@ resource "aws_codepipeline" "clj_app" {
       output_artifacts = ["imagedefinitions"]
 
       configuration {
-        ProjectName = "clj-app"
+        ProjectName = "app"
       }
     }
   }
@@ -80,8 +59,8 @@ resource "aws_codepipeline" "clj_app" {
       version         = "1"
 
       configuration {
-        ClusterName = "${data.terraform_remote_state.ecs.cluster_name}"
-        ServiceName = "${data.terraform_remote_state.ecs.service_name}"
+        ClusterName = "${aws_ecs_cluster.fargate.name}"
+        ServiceName = "${aws_ecs_service.service.name}"
         FileName    = "imagedefinitions.json"
       }
     }

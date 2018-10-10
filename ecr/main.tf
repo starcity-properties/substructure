@@ -11,10 +11,11 @@ provider "aws" {
 ECR repository
 ======*/
 
-resource "aws_ecr_repository" "docker_image" {
+resource "aws_ecr_repository" "image" {
   name = "${var.repository_name}"
 }
 
-data "aws_ecr_repository" "docker_image" {
-  name = "${var.repository_name}"
-}
+
+/*====
+Docker
+======*/

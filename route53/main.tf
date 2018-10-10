@@ -52,4 +52,11 @@ resource "aws_route53_record" "www" {
     "54.69.58.12",
     "54.149.238.10"
   ]
+
+  alias {
+    name    = "${data.terraform_remote_state.ecs.lb_dns_name}"
+    zone_id = "${data.terraform_remote_state.ecs.lb_zone_id}"
+
+    evaluate_target_health = true
+  }
 }

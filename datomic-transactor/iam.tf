@@ -1,9 +1,14 @@
 data "aws_caller_identity" "current" {}
 
+# instance profile which assumes the transactor role
+resource "aws_iam_instance_profile" "datomic_transactor" {
+  name = "datomic_transactor"
+  role = "${aws_iam_role.datomic_transactor.name}"
+}
+
 # transactor role. ec2 instances can assume the role of a transactor
 resource "aws_iam_role" "datomic_transactor" {
-  name = "datomic-transactor-role"
-
+  name = "datomic_transactor"
 
   assume_role_policy = <<EOF
 {
@@ -22,18 +27,11 @@ resource "aws_iam_role" "datomic_transactor" {
 EOF
 }
 
-
-# instance profile which assumes the transactor role
-resource "aws_iam_instance_profile" "datomic_transactor" {
-  name = "datomic-transactor-profile"
-  role = "${aws_iam_role.datomic_transactor.name}"
-}
-
 # policy with complete access to the dynamodb table
 resource "aws_iam_role_policy" "datomic_transactor" {
-  name  = "dynamo_access"
-  role  = "${aws_iam_role.datomic_transactor.id}"
-  count = "${var.protocol == "ddb" ? 1 : 0}"
+  name = "dynamo_db_access"
+
+  role = "${aws_iam_role.datomic_transactor.id}"
 
   policy = <<EOF
 {
@@ -50,6 +48,29 @@ resource "aws_iam_role_policy" "datomic_transactor" {
 EOF
 }
 
+# policy with write access to the transactor logs
+resource "aws_iam_role_policy" "transactor_logs" {
+  name = "s3_logs_access"
+
+  role = "${aws_iam_role.datomic_transactor.id}"
+
+  policy = <<EOF
+{
+  "Statement": [
+    {
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::${aws_s3_bucket.transactor_logs.id}",
+        "arn:aws:s3:::${aws_s3_bucket.transactor_logs.id}/*"
+      ]
+    }
+  ]
+}
+EOF
+}
 
 # policy with write access to cloudwatch
 resource "aws_iam_role_policy" "transactor_cloudwatch" {
@@ -77,28 +98,3 @@ resource "aws_iam_role_policy" "transactor_cloudwatch" {
 }
 EOF
 }
-
-
-# policy with write access to the transactor logs
-resource "aws_iam_role_policy" "transactor_logs" {
-  name = "s3_logs_access"
-  role = "${aws_iam_role.datomic_transactor.id}"
-
-  policy = <<EOF
-{
-  "Statement": [
-    {
-      "Action": [
-        "s3:PutObject"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::${aws_s3_bucket.transactor_logs.id}",
-        "arn:aws:s3:::${aws_s3_bucket.transactor_logs.id}/*"
-      ]
-    }
-  ]
-}
-EOF
-}
-

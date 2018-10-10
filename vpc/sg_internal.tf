@@ -97,3 +97,34 @@ resource "aws_security_group_rule" "allow_http_egress_internal_inbound" {
   protocol    = "-1"
   cidr_blocks = ["0.0.0.0/0"]
 }
+
+
+resource "aws_security_group" "http_outbound" {
+  name        = "http_outbound"
+  description = "Allow HTTP to internal hosts"
+  vpc_id      = "${aws_vpc.vpc.id}"
+
+  tags {
+    Name = "http_outbound"
+  }
+}
+
+resource "aws_security_group_rule" "allow_http_egress" {
+  type              = "egress"
+  security_group_id = "${aws_security_group.http_outbound.id}"
+
+  from_port   = 80
+  to_port     = 80
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "allow_https_egress" {
+  type              = "egress"
+  security_group_id = "${aws_security_group.http_outbound.id}"
+
+  from_port   = 443
+  to_port     = 443
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}

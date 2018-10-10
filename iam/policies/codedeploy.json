@@ -1,0 +1,38 @@
+{
+  "Statement": [
+    {
+      "Sid": "CodeDeployS3",
+      "Effect":"Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:GetBucketVersioning",
+        "s3:List*",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "${aws_s3_bucket_arn}",
+        "${aws_s3_bucket_arn}/*"
+      ]
+    },
+    {
+      "Sid": "CodeDeploy",
+      "Action": [
+        "autoscaling:CompleteLifecycleAction",
+        "autoscaling:DeleteLifecycleHook",
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeLifecycleHooks",
+        "autoscaling:PutLifecycleHook",
+        "autoscaling:RecordLifecycleActionHeartbeat",
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceStatus",
+        "ec2:DescribeTags",
+        "tag:GetTags",
+        "tag:GetResources"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ],
+  "Version": "2012-10-17"
+}

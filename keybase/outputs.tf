@@ -2,14 +2,6 @@ output "aws_user_count" {
   value = "${local.count}"
 }
 
-output "aws_user_names" {
-  value = "${local.user_names}"
-}
-
-output "aws_access_keys" {
-  value = "${local.access_keys}"
-}
-
 output "map_aws_user_names_to_access_keys" {
   value = "${zipmap("${local.user_names}", "${local.access_keys}")}"
 }

@@ -15,45 +15,45 @@ IAM
 
 resource "aws_iam_group" "dev_administrator" {
   name = "development_administrator"
-  path = "/"
+  path = "/group/"
 }
 
 resource "aws_iam_group" "stage_administrator" {
   name = "staging_administrator"
-  path = "/"
+  path = "/group/"
 }
 
 resource "aws_iam_group" "prod_administrator" {
   name = "production_administrator"
-  path = "/"
+  path = "/group/"
 }
 
 resource "aws_iam_group" "developer" {
   name = "developer"
-  path = "/"
+  path = "/group/"
 }
 
 resource "aws_iam_group" "application" {
   name = "application"
-  path = "/"
+  path = "/group/"
 }
 
 /*==== apps =======*/
 
-# imported
 resource "aws_iam_user" "app" {
-  count = "${length(var.applications)}"
-  name = "${element(var.applications, count.index)}"
-  path = "/"
+  count = "${length(keys(var.applications))}"
+  name = "${lookup(var.applications[count.index], "app")}"
+  path = "${lookup(var.applications[count.index], "path")}"
+
+  force_destroy = true
 }
 
 /*==== devs =======*/
 
-# imported
 resource "aws_iam_user" "dev" {
-  count = "${length(var.developers)}"
-  name = "${element(var.developers, count.index)}"
-  path = "/"
+  count = "${length(keys(var.developers))}"
+  name = "${lookup(var.developers[count.index], "dev")}"
+  path = "${lookup(var.developers[count.index], "path")}"
 
   force_destroy = true
 }
@@ -84,8 +84,8 @@ resource "aws_iam_group_membership" "applications" {
 
 /* ADMINS */
 resource "aws_iam_user_group_membership" "administrator" {
-  count = "${length(var.administrators)}"
-  user = "${element(var.administrators, count.index)}"
+  count = "${length(keys(var.administrators))}"
+  user = "${lookup(var.administrators[count.index], "admin")}"
 
   groups = [
     "${aws_iam_group.dev_administrator.name}",
@@ -93,6 +93,8 @@ resource "aws_iam_user_group_membership" "administrator" {
     "${aws_iam_group.prod_administrator.name}"
   ]
 }
+
+/*==== roles ======*/
 
 /*==== policy attachments =====*/
 
@@ -126,4 +128,29 @@ resource "aws_iam_policy_attachment" "developers_view_only" {
   policy_arn = "${aws_iam_policy.view_only_full_access.arn}"
 }
 
-/*==== roles ======*/
+##------------------ IAM (ADMINISTRATORS) -----------------##
+
+resource "aws_iam_role" "administrator" {
+  name = "administrator"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "iam.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy_attachment" "administrator" {
+  name       = "administrator"
+  roles      = ["${aws_iam_role.administrator.name}"]
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}

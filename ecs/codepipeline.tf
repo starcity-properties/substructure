@@ -1,11 +1,12 @@
 /* CodePipeline */
 
+
 resource "aws_codepipeline" "app" {
-  name     = "app"
+  name     = "${var.repository_name}-app"
   role_arn = "${data.terraform_remote_state.iam.codepipeline_role}"
 
   artifact_store {
-    location = "${data.terraform_remote_state.iam.source_bucket}"
+    location = "${data.terraform_remote_state.iam.codepipeline_artifacts_bucket}"
     type     = "S3"
   }
 
@@ -21,9 +22,9 @@ resource "aws_codepipeline" "app" {
       output_artifacts = ["source"]
 
       configuration {
-        Owner      = "${var.github_owner}"
         Repo       = "${var.github_repo}"
         Branch     = "${var.github_branch}"
+        Owner      = "${var.github_owner}"
         OAuthToken = "${var.github_oauth_token}"
       }
     }
@@ -42,21 +43,39 @@ resource "aws_codepipeline" "app" {
       output_artifacts = ["imagedefinitions"]
 
       configuration {
-        ProjectName = "app"
+        ProjectName = "${var.repository_name}-app"
       }
     }
   }
 
+  # stage {
+  #   name = "Test"
+
+  #   action {
+  #     name             = "Test"
+  #     category         = "Test"
+  #     owner            = "AWS"
+  #     provider         = "CodeBuild"
+  #     version          = "1"
+  #     input_artifacts  = ["source"]
+  #     output_artifacts = ["imagedefinitions"]
+
+  #     configuration {
+  #       ProjectName = "${var.repository_name}-app"
+  #     }
+  #   }
+  # }
+
   stage {
-    name = "Production"
+    name = "${title(var.environment)}-deploy"
 
     action {
       name            = "Deploy"
       category        = "Deploy"
       owner           = "AWS"
       provider        = "ECS"
-      input_artifacts = ["imagedefinitions"]
       version         = "1"
+      input_artifacts = ["imagedefinitions"]
 
       configuration {
         ClusterName = "${aws_ecs_cluster.fargate.name}"

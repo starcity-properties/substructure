@@ -33,21 +33,23 @@ data "template_file" "web_task" {
     host_port      = "${var.host_port}"
     protocol       = "${var.protocol}"
 
-    name       = "${var.repository_name}"
-    image      = "${data.terraform_remote_state.ecr.repository_url}:latest"
+    name  = "${var.repository_name}"
+    image = "${data.terraform_remote_state.ecr.repository_url}"
 
     aws_region = "${var.aws_region}"
     log_group  = "${aws_cloudwatch_log_group.app.name}"
     prefix     = "${var.db_access_type}"
 
-    tipe_org_secret = "${var.tipe_org_secret}"
-    tipe_api_key = "${var.tipe_api_key}"
-    slack_client_id = "${var.slack_client_id}"
-    slack_client_secret = "${var.slack_client_secret}"
-    slack_api_url = "${var.slack_api_url}"
-    slack_webhook = "${var.slack_webhook}"
-    slack_token = "${var.slack_token}"
     datomic_uri = "${var.datomic_uri}"
+
+    # TODO: parameterize these because not all services will require the same secrets
+    tipe_org_secret = "${var.api_secrets["tipe_org_secret"]}"
+    tipe_api_key = "${var.api_secrets["tipe_api_key"]}"
+    slack_client_id = "${var.api_secrets["slack_client_id"]}"
+    slack_client_secret = "${var.api_secrets["slack_client_secret"]}"
+    slack_api_url = "${var.api_secrets["slack_api_url"]}"
+    slack_webhook = "${var.api_secrets["slack_webhook"]}"
+    slack_token = "${var.api_secrets["slack_token"]}"
   }
 }
 

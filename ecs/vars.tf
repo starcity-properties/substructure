@@ -64,29 +64,37 @@ variable "host_port" {
 }
 
 
-# TODO: this should be a map of secrets so that each service has its own
-# SECRETS
+# APPLICATION SECRETS
 
-variable "tipe_org_secret" {
-}
-
-variable "tipe_api_key" {
-}
-
-variable "slack_client_id" {
-}
-
-variable "slack_client_secret" {
-}
-
-variable "slack_api_url" {
-}
-
-variable "slack_webhook" {
-}
-
-variable "slack_token" {
+variable "docker_build_args" {
+  description = "a list of build args to be input when the Docker image is built"
+  type = "list"
 }
 
 variable "datomic_uri" {
+  description = "the uri used by this service to connect to the Datomic transactor"
+}
+
+variable "api_secrets" {
+  description = "a map of API secrets used by this service"
+  type = "map"
+}
+
+
+# PIPELINE SECRETS
+
+variable "github_repo" {
+  description = "github repository containing code for this service"
+}
+
+variable "github_branch" {
+  description = "github branch watched for new commits as triggers to build and deploy"
+}
+
+variable "github_owner" {
+  description = "github organization who owns the repo"
+}
+
+variable "github_oauth_token" {
+  description = "github oauth token used for authentication to pull new code"
 }

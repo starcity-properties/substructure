@@ -9,12 +9,3 @@
 cd /cault
 
 docker-compose up -d
-<<<<<<< HEAD
-=======
-
-
-
-
-# docker ps -a
-# docker exec -it 48280f8afeeb vault
->>>>>>> temporary COMMIT

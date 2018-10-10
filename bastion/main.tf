@@ -14,6 +14,7 @@ provider "aws" {
 data "template_file" "bastion_user_data" {
   template = "${file("${path.module}/scripts/provision.sh")}"
 
+  # TODO turn this into a map of users and ssh keys
   vars {
     users = "${var.users}"
   }

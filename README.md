@@ -3,9 +3,9 @@
 
 ## Notes
 
-Inside each directory here are Terraform modules to create specific (sets of) AWS resources.
+Inside each directory here are Terraform modules to create specific (sets of) AWS resources, in alphabetical order.
 
-
+## AMI (TODO: could be moved into each respective module that is based on said AMI)
 
 ## Bastion Host
 

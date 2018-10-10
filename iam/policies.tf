@@ -299,11 +299,10 @@ EOF
 
 
 
-# s3 bucket
-resource "aws_s3_bucket" "source" {
-  bucket = "starcity-development-codepipeline-source"
+# S3 bucket to store artifacts passed to stages in the pipeline
+resource "aws_s3_bucket" "artifacts" {
+  bucket = "starcity-codepipeline-${var.environment}"
 }
-
 
 
 /* === CodePipeline === */
@@ -312,7 +311,7 @@ data "template_file" "codepipeline_policy" {
   template = "${file("${path.module}/policies/codepipeline.json")}"
 
   vars {
-    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+    aws_s3_bucket_arn = "${aws_s3_bucket.artifacts.arn}"
   }
 }
 
@@ -322,13 +321,14 @@ resource "aws_iam_role_policy" "codepipeline" {
   policy = "${data.template_file.codepipeline_policy.rendered}"
 }
 
+
 /* === CodeBuild === */
 
 data "template_file" "codebuild_policy" {
   template = "${file("${path.module}/policies/codebuild.json")}"
 
   vars {
-    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+    aws_s3_bucket_arn = "${aws_s3_bucket.artifacts.arn}"
   }
 }
 
@@ -344,7 +344,7 @@ data "template_file" "codedeploy_policy" {
   template = "${file("${path.module}/policies/codedeploy.json")}"
 
   vars {
-    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+    aws_s3_bucket_arn = "${aws_s3_bucket.artifacts.arn}"
   }
 }
 

@@ -34,6 +34,10 @@ output "consul_vault_role" {
   value = "${aws_iam_role.cault.name}"
 }
 
+output "codepipeline_artifacts_bucket" {
+  value = "${aws_s3_bucket.artifacts.bucket}"
+}
+
 output "codepipeline_role" {
   value = "${aws_iam_role.codepipeline.arn}"
 }
@@ -44,8 +48,4 @@ output "codebuild_role" {
 
 output "codedeploy_role" {
   value = "${aws_iam_role.codedeploy.arn}"
-}
-
-output "source_bucket" {
-  value = "${aws_s3_bucket.source.bucket}"
 }

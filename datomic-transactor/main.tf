@@ -7,9 +7,7 @@ provider "aws" {
 }
 
 
-/*====
-Datomic transactor (x1)
-======*/
+/*==== Datomic transactor (x1) ======*/
 
 data "aws_ami" "datomic_transactor" {
   most_recent = true
@@ -19,7 +17,6 @@ data "aws_ami" "datomic_transactor" {
     values = ["datomic-0.9.5544-star-development"]
   }
 }
-
 
 
 # s3 bucket for the transactor logs

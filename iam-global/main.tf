@@ -7,9 +7,7 @@ provider "aws" {
 }
 
 
-/*====
-IAM
-======*/
+/*==== IAM global ======*/
 
 /*==== groups =====*/
 

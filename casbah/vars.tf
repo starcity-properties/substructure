@@ -32,10 +32,13 @@ variable "ssh_key_name" {
   description = "the name of the key pair associated with this instance"
 }
 
-# # TODO
-# variable "route53_subdomain" {
-#   description = "the name of the record"
-# }
+variable "key_path" {
+  description = "the absolute path to the .pem key"
+}
+
+variable "route53_subdomain_prefix" {
+  description = "the prefix of the record name to create the subdomain"
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS

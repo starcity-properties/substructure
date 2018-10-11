@@ -33,7 +33,7 @@ data "template_file" "bastion_user_data" {
 }
 
 
-# bastion instance
+# Bastion instance
 
 resource "aws_instance" "bastion" {
   key_name      = "${var.ssh_key_name}"

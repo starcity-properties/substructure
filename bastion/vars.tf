@@ -15,10 +15,6 @@ variable "tfstate_region" {
   description = "region of the tfstate_global_bucket"
 }
 
-variable "casbah_remote_state_key" {
-  description = "key for the casbah remote state file"
-}
-
 variable "vpc_remote_state_key" {
   description = "key for the vpc remote state file"
 }
@@ -51,7 +47,6 @@ variable "users" {
 #   type        = "map"
 # }
 
-# TODO
 variable "route53_subdomain_prefix" {
   description = "the prefix of the record name to create the subdomain"
 }

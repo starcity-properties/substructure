@@ -6,7 +6,7 @@
         "aws_region": "us-west-2"
     },
     "builders": [{
-        "ami_name": "casbah-repl-{{user `lein_version`}}",
+        "ami_name": "casbah-{{user `aws_profile`}}",
         "instance_type": "t2.micro",
         "region": "{{user `aws_region`}}",
         "profile": "{{user `aws_profile`}}",

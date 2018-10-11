@@ -32,10 +32,6 @@ variable "route53_remote_state_key" {
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "ami_id" {
-  description = "ami to use for the instance"
-}
-
 variable "ssh_key_name" {
   description = "the name of the key pair associated with this instance"
 }
@@ -48,7 +44,7 @@ variable "users" {
   description = "users to be created on bastion"
 }
 
-# TODO
+# TODO: make this a map of users and keys so that authorized keys can be passed in via superstructure
 # variable "public_keys" {
 #   description = "public keys to be loaded onto bastion"
 #   default     = {}
@@ -56,8 +52,8 @@ variable "users" {
 # }
 
 # TODO
-variable "route53_subdomain" {
-  description = "the name of the record"
+variable "route53_subdomain_prefix" {
+  description = "the prefix of the record name to create the subdomain"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

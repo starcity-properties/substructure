@@ -31,8 +31,9 @@ variable "domain_name" {
   description = "the registered domain name"
 }
 
-variable "route53_sub_domains" {
-  description = "a list of subdomains to be created in this environment"
-  type = "list"
-  default = []
-}
+# TODO
+# variable "route53_sub_domains" {
+#   description = "a list of subdomains to be created in this environment"
+#   type = "list"
+#   default = []
+# }

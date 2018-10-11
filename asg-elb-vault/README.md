@@ -1,3 +1,0 @@
-# asg-elb-vault
-
-## Notes

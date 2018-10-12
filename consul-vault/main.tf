@@ -6,12 +6,13 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-#---#---#---#
+
+/*==== Consul-Vault ======*/
 
 data "aws_ami" "cault_ami" {
   filter {
     name   = "name"
-    values = ["docker-compose-star-development"]
+    values = ["docker-compose-*"]
   }
 }
 

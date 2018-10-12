@@ -67,15 +67,18 @@ resource "aws_instance" "bastion" {
     destination = "/tmp/casbah_authorized_keys"
   }
 
-  # TODO: this set of commands currently requires a manual process in order to finish getting authorized_keys onto private server
+  # TODO: this command currently requires semi-manual / hard-coded process to finish getting authorized_keys onto private server in that we assume it's just casbah; and casbah must already exist
+  # basically, for now just execute these commands manually -- one locally and the other from ubuntu@bastion.gostarcity.com
+  # scp -i ~/.aws/moat.pem ~/.aws/casbah.pem ubuntu@bastion.gostarcity.com:~/.ssh/casbah.pem
+  # scp -i ~/.ssh/casbah.pem /tmp/casbah_authorized_keys ubuntu@casbah.gostarcity.com:~/.ssh/authorized_keys
 
   # provisioner "local-exec" {
-  #   command = "scp -i ${file("${var.key_path}")} /.aws/casbah.pem ubuntu@${aws_instance.bastion.public_dns}:~/.ssh/casbah.pem"
+  #   command = "scp -i ${file("${var.key_path}")} ${file("/.aws/casbah.pem")} ubuntu@${aws_instance.bastion.public_dns}:~/.ssh/casbah.pem"
   # }
 
   # provisioner "remote-exec" {
   #   inline = [
-  #     "scp -i ~/.ssh/casbah.pem /tmp/casbah_authorized_keys ec2-user@${data.terraform_remote_state.casbah.casbah_private_ip}:~/.ssh/authorized_keys"
+  #     "scp -i ~/.ssh/casbah.pem /tmp/casbah_authorized_keys ubuntu@casbah.${data.terraform_remote_state.route53.route53_private_zone_name}:~/.ssh/authorized_keys"
   #   ]
   # }
 

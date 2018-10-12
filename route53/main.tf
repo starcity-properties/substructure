@@ -48,3 +48,14 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = true
   }
 }
+
+
+# PRIVATE ZONE & RECORDS
+
+resource "aws_route53_zone" "private" {
+  name = "${var.domain_name}"
+
+  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
+
+  force_destroy = true
+ }

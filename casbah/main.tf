@@ -55,10 +55,10 @@ resource "aws_instance" "casbah" {
 
 
 resource "aws_route53_record" "casbah" {
-  name    = "${var.route53_subdomain_prefix}.${data.terraform_remote_state.route53.route53_public_zone_name}"
-  zone_id = "${data.terraform_remote_state.route53.route53_public_zone_id}"
+  name    = "${var.route53_subdomain_prefix}.${data.terraform_remote_state.route53.route53_private_zone_name}"
+  zone_id = "${data.terraform_remote_state.route53.route53_private_zone_id}"
   type    = "A"
   ttl     = "300"
 
-  records = ["${aws_instance.casbah.public_ip}"]
+  records = ["${aws_instance.casbah.private_ip}"]
 }

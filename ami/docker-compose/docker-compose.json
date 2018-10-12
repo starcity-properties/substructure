@@ -2,16 +2,24 @@
     "min_packer_version": "0.12.0",
     "variables": {
         "aws_profile": "{{env `AWS_PROFILE`}}",
-        "aws_region": "us-west-2"
+        "aws_region": "us-west-2",
+        "aws_prod_account": "{{env `AWS_PROD_ACCOUNT`}}",
+        "aws_stage_account": "{{env `AWS_STAGE_ACCOUNT`}}",
+        "aws_dev_account": "{{env `AWS_DEV_ACCOUNT`}}"
     },
     "builders": [{
-        "ami_name": "docker-compose-{{user `aws_profile`}}",
+        "ami_name": "docker-compose-{{user `aws_profile`}}-{{timestamp}}",
         "instance_type": "t2.micro",
         "region": "{{user `aws_region`}}",
         "profile": "{{user `aws_profile`}}",
-        "source_ami": "ami-a4148ddc",
         "type": "amazon-ebs",
-        "ssh_username": "ubuntu"
+        "source_ami": "ami-a4148ddc",
+        "ssh_username": "ubuntu",
+        "ami_users": [
+            "{{user `aws_prod_account`}}",
+            "{{user `aws_stage_account`}}",
+            "{{user `aws_dev_account`}}"
+        ]
     }],
     "provisioners": [
         {

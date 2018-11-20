@@ -8,6 +8,10 @@ variable "vpc_remote_state_key" {
   description = "key for the vpc remote state file"
 }
 
+variable "iam_remote_state_key" {
+  description = "key for the iam remote state file"
+}
+
 variable "tfstate_bucket" {
   description = "bucket that terraform remote state is stored in"
 }
@@ -17,21 +21,15 @@ variable "tfstate_region" {
 }
 
 
-
-
-
-
-
-
-
-
-variable "ami" {
-  description = "ami to use for transactor instance"
-}
+# DTX-SPECIFIC
 
 variable "protocol" {
   description = "storage protocol to use"
   default     = "ddb"
+}
+
+variable "port" {
+  description = "port"
 }
 
 variable "availability_zones" {
@@ -43,9 +41,8 @@ variable "transactor_name" {
   description = "name of the datomic transactor"
 }
 
-variable "transactor_instance_type" {
+variable "instance_type" {
   description = "aws instance type for the transactor instance"
-  default     = "t2.micro"
 }
 
 variable "instance_count" {
@@ -68,11 +65,19 @@ variable "transactor_object_cache_max" {
   description = "TODO:"
 }
 
+variable "java_opts" {
+  description = "java options to run transactor"
+}
+
 variable "transactor_xmx" {
   description = "max transactor memory consumption"
 }
 
-variable "datomic_license" {
+variable "transactor_xms" {
+  description = "initial transactor memory consumption"
+}
+
+variable "license_key" {
   description = "license for datomic pro"
 }
 
@@ -92,7 +97,7 @@ variable "partition" {
 
 # variable "memcached_uri" {}
 
-variable "key_name" {
+variable "ssh_key_name" {
   description = "name of the ec2 keypair to use"
 }
 
@@ -100,12 +105,14 @@ variable "dynamodb_table" {
   description = "dynamodb table to store datomic data"
 }
 
+variable "db_name" {
+  description = "database name"
+}
+
 variable "dynamo_read_capacity" {
   description = "read capacity for dynamodb"
-  default     = 1
 }
 
 variable "dynamo_write_capacity" {
   description = "write capacity for dynamodb"
-  default     = 1
 }

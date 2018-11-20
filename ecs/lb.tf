@@ -14,10 +14,15 @@ resource "aws_lb" "app" {
     "${data.terraform_remote_state.vpc.internal_inbound_id}"
   ]
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags {
     Environment = "${var.environment}"
   }
 }
+
 
 /* helper */
 resource "random_id" "target_group_suffix" {
@@ -25,7 +30,7 @@ resource "random_id" "target_group_suffix" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name        = "${var.repository_name}-${random_id.target_group_suffix.hex}"
+  name = "${var.repository_name}-${random_id.target_group_suffix.hex}"
 
   port        = 80
   protocol    = "HTTP"
@@ -39,17 +44,35 @@ resource "aws_lb_target_group" "app" {
   }
 }
 
-resource "aws_lb_listener" "app" {
+
+resource "aws_lb_listener" "app_https" {
   load_balancer_arn = "${aws_lb.app.arn}"
-  port              = 80
-  protocol          = "HTTP"
-  # ssl_policy        = "ELBSecurityPolicy-2015-05"
-  # certificate_arn   = "arn:aws:iam::187416307283:server-certificate/test_cert_rab3wuqwgja25ct3n4jdj2tzu4"
+  port              = 443
+  protocol          = "HTTPS"
+
+  ssl_policy      = "ELBSecurityPolicy-2015-05"
+  certificate_arn = "${data.aws_acm_certificate.domain.arn}"
 
   depends_on = ["aws_lb_target_group.app"]
 
   default_action {
     target_group_arn = "${aws_lb_target_group.app.arn}"
     type             = "forward"
+  }
+}
+
+
+resource "aws_lb_listener" "app_http" {
+  load_balancer_arn = "${aws_lb.app.arn}"
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      port = "443"
+      protocol = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }

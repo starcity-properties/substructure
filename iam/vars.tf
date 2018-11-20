@@ -4,47 +4,31 @@ variable "aws_region" {
   description = "aws region"
 }
 
-
-
-# REQUIRED GLOBAL
-
-variable "applications" {
-  type = "list"
-  default = []
-}
-
-variable "developers" {
-  type = "list"
-  default = []
-}
-
-variable "administrators" {
-  type = "list"
-  default = []
-}
-
-variable "dev_account" {
-  description = "number associated with aws development account (role)"
-}
-
-variable "stage_account" {
-  description = "number associated with aws staging account (role)"
-}
-
-variable "prod_account" {
-  description = "number associated with aws production account (role)"
+variable "aws_account_ids" {
+  description = "aws account id's for all environments"
+  type = "map"
 }
 
 
+# REQUIRED ENVIRONMENT-SPECIFIC
 
-# ENVIRONMENT-SPECIFIC
-
-variable "iam_policy_arns" {
-  description = "list of policies to be attached to a role"
-  type = "list"
-  default = []
+variable "environment" {
+  description = "environment, or aws account"
 }
 
+# TODO: move this to its proper place
 variable "db_access_type" {
-  description = "one of `app` (backend service) or `web` to express type of resource requiring access to database"
+  description = "type of resource requiring db access: one of `app` (backend service) or `web` (web application)"
+}
+
+# TODO: move this to its proper place
+variable "table_name" {
+  description = "the name of the database table"
+}
+
+# TODO: move this to its proper place
+variable "iam_policy_arns" {
+  description = "list of policies to be attached to a role for a backend service or web application"
+  type = "list"
+  default = []
 }

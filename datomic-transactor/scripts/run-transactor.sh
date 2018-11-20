@@ -2,27 +2,28 @@
 
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
+export XMX="-Xmx${xmx}"
+export XMS="-Xms${xms}"
 export JAVA_OPTS=${java_opts}
-export XMX="-Xmx${transactor_xmx}"
-export XMS="-Xms${transactor_xms}"
 
 cd /datomic/"datomic-pro"
 
 cat <<EOF >ddb-transactor.properties
 ################################################################
 
-host=localhost
+host=`curl http://instance-data/latest/meta-data/local-ipv4`
 protocol=${protocol}
 port=${port}
-
 license-key=${license_key}
 
 ## STORAGE #####################################################
 # See http://docs.datomic.com/storage.html
-aws-dynamodb-table=${aws_dynamodb_table}
+
+aws-dynamodb-table=${dynamodb_table}
 aws-dynamodb-region=${region}
 
 ## LOGS ########################################################
+
 aws-s3-log-bucket-id=${s3_log_bucket}
 aws-cloudwatch-region=${region}
 aws-cloudwatch-dimension-value=${cloudwatch_dimension}
@@ -78,7 +79,6 @@ object-cache-max=${object_cache_max}
 # read-concurrency=8
 
 ## PARTITION ###################################################
-
 # The transactor will use this partition for new entities that
 # do not explicitly specify a partition.
 # Default: :db.part/user
@@ -87,7 +87,6 @@ default-partition=:db.part/${partition}
 
 ## HEARTBEAT ###################################################
 # See http://docs.datomic.com/ha.html
-
 # The transactor will write a heartbeat into storage on this interval.
 # A standby transactor will take over if it sees the heartbeat go
 # unwritten  for 2x this interval. If your transactor load leads to
@@ -95,7 +94,6 @@ default-partition=:db.part/${partition}
 # transactor from unnecessarily taking over during a long gc pause.
 # Default: 5000, Miniumum: 5000
 # heartbeat-interval-msec=5000
-
 EOF
 
 chmod 744 ddb-transactor.properties

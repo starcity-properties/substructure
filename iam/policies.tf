@@ -1,29 +1,7 @@
-/*================ policies by AWS Service ==================*/
+/* ================ policies by AWS Service ================== */
 
 
-resource "aws_iam_policy" "aws_full_access" {
-  name        = "aws_full_access"
-  path        = "/"
-  description = "Allows full access to AWS."
-
-policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "*",
-            "Resource": "*"
-        }
-    ]
-}
-EOF
-}
-
-
-/*===
-IAM
-===*/
+/* === IAM === */
 
 resource "aws_iam_policy" "iam_full_access" {
   name        = "iam_full_access"
@@ -32,7 +10,6 @@ resource "aws_iam_policy" "iam_full_access" {
 
   policy = <<EOF
 {
-  "Version": "2012-10-17",
   "Statement": [
     {
       "Sid": "IAMFullAccess",
@@ -40,15 +17,14 @@ resource "aws_iam_policy" "iam_full_access" {
       "Effect": "Allow",
       "Resource": "*"
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
 
 
-/*===
-DynamoDB
-===*/
+/* === DynamoDB === */
 
 # DATOMIC PEER
 resource "aws_iam_policy" "dynamo_read" {
@@ -68,9 +44,10 @@ resource "aws_iam_policy" "dynamo_read" {
         "dynamodb:Query"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:dynamodb:*:${var.aws_account_id}:table/${var.system_name}"
+      "Resource": "arn:aws:dynamodb:*:${var.aws_account_ids[var.environment]}:table/${var.table_name}"
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
@@ -88,18 +65,17 @@ resource "aws_iam_policy" "dynamo_full_access" {
       "Sid": "DynamoTableFullAccess",
       "Action": "dynamodb:*",
       "Effect": "Allow",
-      "Resource": "arn:aws:dynamodb:*:${var.aws_account_id}:table/${var.system_name}"
+      "Resource": "arn:aws:dynamodb:*:${var.aws_account_ids[var.environment]}:table/${var.table_name}"
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
 
 
+/* === CloudWatch === */
 
-/*===
-CloudWatch
-===*/
 resource "aws_iam_policy" "cloudwatch_logs" {
   name        = "cloudwatch_logs"
   path        = "/"
@@ -128,10 +104,8 @@ EOF
 }
 
 
+/* === S3 === */
 
-/*===
-S3
-===*/
 resource "aws_iam_policy" "s3_full_access" {
   name        = "s3_full_access"
   path        = "/"
@@ -148,42 +122,6 @@ resource "aws_iam_policy" "s3_full_access" {
       "Effect": "Allow",
       "Resource": "*"
     }
-  ]
-}
-EOF
-}
-
-
-
-/*===
-CodeDeploy
-===*/
-resource "aws_iam_policy" "codedeploy" {
-  name        = "codedeploy"
-  path        = "/"
-  description = "Allow access to EC2 and autoscaling for CodeDeploy."
-
-  policy = <<EOF
-{
-  "Statement": [
-    {
-      "Sid": "CodeDeploy",
-      "Action": [
-        "autoscaling:CompleteLifecycleAction",
-        "autoscaling:DeleteLifecycleHook",
-        "autoscaling:DescribeAutoScalingGroups",
-        "autoscaling:DescribeLifecycleHooks",
-        "autoscaling:PutLifecycleHook",
-        "autoscaling:RecordLifecycleActionHeartbeat",
-        "ec2:DescribeInstances",
-        "ec2:DescribeInstanceStatus",
-        "ec2:DescribeTags",
-        "tag:GetTags",
-        "tag:GetResources"
-      ],
-      "Effect": "Allow",
-      "Resource": "*"
-    }
   ],
   "Version": "2012-10-17"
 }
@@ -191,10 +129,8 @@ EOF
 }
 
 
+/* === ECS === */
 
-/*===
-ECS
-===*/
 resource "aws_iam_policy" "ecs_service" {
   name        = "ecs_service"
   path        = "/"
@@ -202,7 +138,6 @@ resource "aws_iam_policy" "ecs_service" {
 
   policy = <<EOF
 {
-  "Version": "2012-10-17",
   "Statement": [
     {
       "Sid": "ElasticLoadBalancingService",
@@ -218,7 +153,8 @@ resource "aws_iam_policy" "ecs_service" {
         "*"
       ]
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
@@ -226,26 +162,57 @@ EOF
 resource "aws_iam_policy" "ecs_execution" {
   name        = "ecs_execution"
   path        = "/"
-  description = "Allow access to ECR and CloudWatch for ECS task execution."
+  description = "Allow ECS container agent and the Docker daemon to assume role."
 
   policy = <<EOF
 {
-  "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "ECSTaskExecution",
+      "Sid": "ECSExecution",
       "Effect": "Allow",
       "Action": [
         "ecr:GetAuthorizationToken",
         "ecr:BatchCheckLayerAvailability",
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
+        "logs:CreateLogGroup",
         "logs:CreateLogStream",
-        "logs:PutLogEvents"
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
       ],
       "Resource": "*"
     }
-  ]
+  ],
+  "Version": "2012-10-17"
+}
+EOF
+}
+
+resource "aws_iam_policy" "ecs_task" {
+  name        = "ecs_task"
+  path        = "/"
+  description = "Allow ECS container task to make calls to other AWS services."
+
+  policy = <<EOF
+{
+  "Statement": [
+    {
+      "Sid": "ECSTask",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
+      ],
+      "Resource": "*"
+    }
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
@@ -257,7 +224,6 @@ resource "aws_iam_policy" "ecs_autoscaling" {
 
   policy = <<EOF
 {
-  "Version": "2012-10-17",
   "Statement": [
     {
       "Sid": "ECSAutoscaling",
@@ -270,15 +236,15 @@ resource "aws_iam_policy" "ecs_autoscaling" {
         "*"
       ]
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
 
 
-/*===
-ECR
-===*/
+/* === ECR === */
+
 resource "aws_iam_policy" "ecs_container_registry_full_access" {
   name        = "ecs_container_registry_full_access"
   path        = "/"
@@ -286,7 +252,6 @@ resource "aws_iam_policy" "ecs_container_registry_full_access" {
 
   policy = <<EOF
 {
-  "Version": "2012-10-17",
   "Statement": [
     {
       "Sid": "ECRFullAccess",
@@ -296,7 +261,8 @@ resource "aws_iam_policy" "ecs_container_registry_full_access" {
       ],
       "Resource": "*"
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }
 EOF
 }
@@ -308,7 +274,6 @@ resource "aws_iam_policy" "ecs_container_registry_push_pull" {
 
   policy = <<EOF
 {
-  "Version": "2008-10-17",
   "Statement": [
     {
       "Sid": "ECRPushPull",
@@ -326,7 +291,65 @@ resource "aws_iam_policy" "ecs_container_registry_push_pull" {
         "*"
       ]
     }
-  ]
+  ],
+  "Version": "2012-10-17"
 }
 EOF
+}
+
+
+
+# s3 bucket
+resource "aws_s3_bucket" "source" {
+  bucket = "starcity-development-codepipeline-source"
+}
+
+
+
+/* === CodePipeline === */
+
+data "template_file" "codepipeline_policy" {
+  template = "${file("${path.module}/policies/codepipeline.json")}"
+
+  vars {
+    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+  }
+}
+
+resource "aws_iam_role_policy" "codepipeline" {
+  name   = "codepipeline"
+  role   = "${aws_iam_role.codepipeline.id}"
+  policy = "${data.template_file.codepipeline_policy.rendered}"
+}
+
+/* === CodeBuild === */
+
+data "template_file" "codebuild_policy" {
+  template = "${file("${path.module}/policies/codebuild.json")}"
+
+  vars {
+    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+  }
+}
+
+resource "aws_iam_role_policy" "codebuild" {
+  name   = "codebuild"
+  role   = "${aws_iam_role.codebuild.id}"
+  policy = "${data.template_file.codebuild_policy.rendered}"
+}
+
+/* === CodeDeploy === */
+
+data "template_file" "codedeploy_policy" {
+  template = "${file("${path.module}/policies/codedeploy.json")}"
+
+  vars {
+    aws_s3_bucket_arn = "${aws_s3_bucket.source.arn}"
+  }
+}
+
+resource "aws_iam_role_policy" "codedeploy" {
+  name   = "codedeploy"
+  role   = "${aws_iam_role.codedeploy.id}"
+  policy = "${data.template_file.codedeploy_policy.rendered}"
 }

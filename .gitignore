@@ -3,3 +3,5 @@ authorized_keys
 *.pem
 .terraform
 *.tfstate
+.idea/
+*.iml

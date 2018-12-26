@@ -27,6 +27,10 @@ variable "iam_remote_state_key" {
   description = "key for the IAM remote state file"
 }
 
+variable "datomic_ssh_public_key" {
+  description = "Public key value for SSH into the Datomic transactor instance."
+}
+
 # =============================================================
 # DynamoDB (inherited)
 # =============================================================

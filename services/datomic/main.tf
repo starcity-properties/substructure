@@ -6,17 +6,6 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-//data "terraform_remote_state" "vpc" {
-//  backend = "s3"
-//
-//  config {
-//    bucket = "${var.tfstate_bucket}"
-//    key    = "${var.vpc_remote_state_key}"
-//    region = "${var.tfstate_region}"
-//  }
-//}
-
-
 data "terraform_remote_state" "iam" {
   backend = "s3"
 
@@ -36,6 +25,10 @@ data "terraform_remote_state" "dynamodb" {
   }
 }
 
+# =============================================================
+# Datomic AMI
+# =============================================================
+
 data "aws_ami" "datomic_transactor_ami" {
   most_recent = true
 
@@ -44,21 +37,6 @@ data "aws_ami" "datomic_transactor_ami" {
     values = ["starcity/images/datomic-pro-0.9.5544-*"]
   }
 }
-
-
-//data "template_file" "datomic_cf_template" {
-//  template = "${file("${path.module}/resources/datomic-cf-template.json")}"
-////  vars {
-////    aws_region = "${var.aws_region}"
-////    instance_type = "${var.instance_type}"
-////  }
-//}
-
-//resource "aws_cloudformation_stack" "datomic_transactor" {
-//  name = "datomic-transactor"
-//  template_body = "${data.template_file.datomic_cf_template.rendered}"
-////  template_url = "${file("${path.module}/resources/datomic-cf-template.json")}"
-//}
 
 # =============================================================
 # EC2 instance role
@@ -82,7 +60,7 @@ resource "aws_iam_role" "datomic_transactor" {
   assume_role_policy = "${data.aws_iam_policy_document.datomic_transactor.json}"
 }
 
-
+# Read only access to the DynamoDB table
 data "aws_iam_policy_document" "ddb_datomic_kv_read_only_access" {
   version = "2012-10-17"
   statement {
@@ -93,38 +71,23 @@ data "aws_iam_policy_document" "ddb_datomic_kv_read_only_access" {
   }
 }
 
-resource "aws_iam_role_policy" "datomic_transactor" {
-  name = "datomic-transactor"
-  role = "${aws_iam_role.datomic_transactor.id}"
-  policy = "${data.aws_iam_policy_document.ddb_datomic_kv_read_only_access.json}"
-}
-
-
-# =============================================================
-# Cloudwatch access policy
-# =============================================================
-//data "aws_ami" "datomic_transactor" {
-//  most_recent = true
-//
-//  filter {
-//    name   = "name"
-//    values = ["ami-0d77397e"]
-//  }
-//}
-
-# =============================================================
-# S3 Datomic logs
-# =============================================================
-
-resource "aws_s3_bucket" "transactor_logs" {
-  bucket        = "${var.transactor_name}-datomic-logs"
-  force_destroy = true
-
-  lifecycle {
-    create_before_destroy = true
+data "aws_iam_policy_document" "ddb_datomic_kv_full_access" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = ["dynamodb:*"]
+    resources = ["arn:aws:dynamodb:*:${var.aws_account_ids["staging"]}:table/${var.ddb_datomic_kv_table}"]
   }
 }
 
+resource "aws_iam_role_policy" "ddb_kv_full_access" {
+  name = "datomic-transactor"
+  role = "${aws_iam_role.datomic_transactor.id}"
+  policy = "${data.aws_iam_policy_document.ddb_datomic_kv_full_access.json}"
+}
+
+
+# Write access to the S3 bucket with Datomic logs.
 data "aws_iam_policy_document" "s3_datomic_logs_write_access" {
   statement {
     effect = "Allow"
@@ -140,6 +103,20 @@ resource "aws_iam_role_policy" "transactor_logs" {
   role = "${aws_iam_role.datomic_transactor.id}"
   policy = "${data.aws_iam_policy_document.s3_datomic_logs_write_access.json}"
 }
+
+# =============================================================
+# S3 Datomic logs
+# =============================================================
+
+resource "aws_s3_bucket" "transactor_logs" {
+  bucket        = "${var.transactor_name}-datomic-logs"
+  force_destroy = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 
 
 
@@ -171,11 +148,6 @@ data "template_file" "transactor_user_data" {
 }
 
 
-//resource "aws_iam_instance_profile" "datomic_transactor" {
-//  name = "-datomic-transactor"
-//  role = "${aws_iam_role.datomic_transactor.name}"
-//}
-
 resource "aws_iam_instance_profile" "datomic_transactor" {
   name = "starcity-datomic-transactor"
   role = "${aws_iam_role.datomic_transactor.name}"
@@ -189,7 +161,7 @@ resource "aws_launch_configuration" "datomic_transactor" {
   instance_type        = "${var.instance_type}"
   security_groups      = ["${aws_security_group.datomic_inbound.id}"]
   iam_instance_profile = "${aws_iam_instance_profile.datomic_transactor.name}"
-//  key_name             = "${aws_key_pair.generated_key.key_name}"
+  key_name             = "${aws_key_pair.datomic-transactor.key_name}"
 
   user_data = "${data.template_file.transactor_user_data.rendered}"
 
@@ -209,6 +181,10 @@ resource "aws_launch_configuration" "datomic_transactor" {
   }
 }
 
+resource "aws_key_pair" "datomic-transactor" {
+  key_name_prefix = "datomic-transactor-key"
+  public_key = "${var.datomic_ssh_public_key}"
+}
 
 
 resource "aws_autoscaling_group" "datomic_asg" {

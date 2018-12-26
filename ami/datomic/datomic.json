@@ -1,7 +1,7 @@
 {
     "variables": {
         "datomic_version": "{{env `DATOMIC_VERSION`}}",
-        "datomic_user": "{{env `DATOMIC_USER`}}",
+        "datomic_user": "{{env `DATOMIC_USERNAME`}}",
         "datomic_password": "{{env `DATOMIC_PASSWORD`}}",
     },
     "builders": [{
@@ -17,7 +17,7 @@
         "script": "scripts/install-datomic.sh",
         "environment_vars": [
             "DATOMIC_VERSION={{user `datomic_version`}}",
-            "DATOMIC_USER={{user `datomic_user`}}",
+            "DATOMIC_USERNAME={{user `datomic_user`}}",
             "DATOMIC_PASSWORD={{user `datomic_password`}}"
         ],
         "execute_command": "echo 'packer' | sudo -S sh -c '{{ .Vars }} {{ .Path }}'"
